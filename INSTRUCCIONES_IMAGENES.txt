@@ -1,0 +1,25 @@
+==========================================================
+SISTEMA DE SOPORTE INFORMÁTICO DRAJ 2026 - INSTRUCCIONES
+==========================================================
+
+El proyecto ya está completo y listo para usarse.
+
+=== ¿DÓNDE PONER LAS FOTOS/LOGOS? ===
+Para que los logotipos aparezcan en la vista de impresión, debes copiar las fotos que me enviaste a la siguiente carpeta dentro de este directorio:
+
+Ruta:
+sistema_soporte_draj\static\img\
+
+Nombres obligatorios de las imágenes:
+1. "logo_gore_junin.png"  (Para el logo naranja y verde de GORE)
+2. "logo_dra_junin.png"   (Para el logo circular verde de DRA)
+
+¡Asegúrate de que tengan el formato .png y exactamente ese nombre para que el sistema las detecte!
+
+=== ¿CÓMO INICIAR EL SISTEMA? ===
+1. Abre tu terminal (Símbolo del sistema o PowerShell).
+2. Entra a esta carpeta usando el comando cd:
+   cd C:\Users\Usuario\Downloads\sistema_soporte_draj
+3. Ejecuta el servidor:
+   python app.py
+4. Entra a http://127.0.0.1:5000 en Google Chrome, Edge o Firefox.

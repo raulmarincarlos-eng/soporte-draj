@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body { background: linear-gradient(135deg, #e0f2e9 0%, #f4f7f6 100%); padding-bottom: 50px; }
+    .glass-search-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        box-shadow: 0 25px 50px rgba(25, 135, 84, 0.15);
+        border: 1px solid rgba(255,255,255,0.8);
+        backdrop-filter: blur(20px);
+        overflow: hidden;
+        transform: translateY(0);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .glass-search-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 35px 60px rgba(25, 135, 84, 0.2);
+    }
+    .hero-header-draj {
+        background: linear-gradient(135deg, #0f5132 0%, #198754 100%);
+        position: relative;
+        overflow: hidden;
+        border-radius: 25px 25px 0 0;
+    }
+    .floating-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        animation: float 6s infinite ease-in-out alternate;
+    }
+    .circle-1 { width: 150px; height: 150px; top: -50px; right: -20px; animation-delay: 0s; }
+    .circle-2 { width: 100px; height: 100px; bottom: -30px; left: 10%; animation-delay: 1.5s; }
+    .circle-3 { width: 60px; height: 60px; top: 40%; right: 20%; animation-delay: 3s; }
+    @keyframes float {
+        0% { transform: translateY(0) scale(1); }
+        100% { transform: translateY(-20px) scale(1.05); }
+    }
+    .search-input-premium {
+        background: #f8f9fa;
+        border: 2px solid transparent !important;
+        font-size: 1.1rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+        color: #2c3e50;
+        transition: all 0.3s;
+    }
+    .search-input-premium:focus {
+        background: #fff;
+        border-color: #20c997 !important;
+        box-shadow: 0 0 0 5px rgba(32, 201, 151, 0.15) !important;
+        outline: none;
+    }
+    .btn-search-glow {
+        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s;
+    }
+    .btn-search-glow::after {
+        content: '';
+        position: absolute;
+        top: -2px; left: -2px; right: -2px; bottom: -2px;
+        background: inherit;
+        filter: blur(10px);
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s;
+        border-radius: inherit;
+    }
+    .btn-search-glow:hover { transform: scale(1.05); }
+    .btn-search-glow:hover::after { opacity: 0.7; }
+</style>
+
+<div class="row justify-content-center animation-fade-in mt-4">
+    <div class="col-lg-8 col-xl-7">
+        <div class="glass-search-container">
+            <div class="hero-header-draj text-white p-5 text-center">
+                <!-- Glowing Floating Shapes -->
+                <div class="floating-circle circle-1"></div>
+                <div class="floating-circle circle-2"></div>
+                <div class="floating-circle circle-3"></div>
+                
+                <div class="position-relative z-1">
+                    <div class="d-inline-flex justify-content-center align-items-center bg-white rounded-circle shadow-lg mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-satellite-dish fa-2x text-success" style="animation: pulse-glow 2s infinite alternate;"></i>
+                    </div>
+                    <h2 class="fw-bold mb-2 display-6" style="letter-spacing: -1px;">Rastreo de Ticket</h2>
+                    <p class="text-white-75 mb-0 fs-6">Ingresa tu código único para verificar el estado de atención</p>
+                </div>
+            </div>
+            
+            <div class="card-body p-4 p-md-5 bg-transparent">
+                <form method="GET" action="{{ url_for('consultar') }}" class="mb-4">
+                    <div class="input-group input-group-lg bg-white rounded-pill p-1 shadow-sm border border-light">
+                        <span class="input-group-text bg-transparent border-0 ps-4 text-success"><i class="fas fa-search fs-5"></i></span>
+                        <input type="text" class="form-control search-input-premium rounded-pill ps-2" name="ticket_id" placeholder="Ej. SOP-2026-0001" value="{{ search_id }}" required autofocus>
+                        <button class="btn btn-search-glow rounded-pill px-5 ms-1" type="submit"><i class="fas fa-radar me-2"></i> Localizar</button>
+                    </div>
+                </form>
+
+                {% if error %}
+                <div class="alert alert-danger border-0 shadow-sm rounded-4 p-4 text-center animation-slide-up">
+                    <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                    <h5 class="fw-bold">No encontrado</h5>
+                    <p class="mb-0 text-muted">{{ error }}</p>
+                </div>
+                {% endif %}
+
+                {% if atencion %}
+                <div class="ticket-result animation-slide-up">
+                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                        <h4 class="fw-bold text-dark mb-0"><i class="fas fa-hashtag text-primary me-2"></i>{{ atencion.id }}</h4>
+                        <span class="badge rounded-pill {% if atencion.resultado == 'Atendido' %}bg-success{% elif atencion.resultado == 'Parcial' %}bg-warning text-dark{% elif atencion.resultado == 'Pendiente' %}bg-info text-dark{% else %}bg-danger{% endif %} px-4 py-2 fs-6 shadow-sm">
+                            <i class="fas {% if atencion.resultado == 'Atendido' %}fa-check-circle{% elif atencion.resultado == 'Parcial' %}fa-exclamation-circle{% elif atencion.resultado == 'Pendiente' %}fa-clock{% else %}fa-times-circle{% endif %} me-2"></i>{{ atencion.resultado }}
+                        </span>
+                    </div>
+
+                    <div class="row mb-5 g-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-4 h-100 border border-light shadow-sm hover-lift">
+                                <small class="text-uppercase text-muted fw-bold d-block mb-1"><i class="fas fa-user text-primary me-2"></i>Solicitante</small>
+                                <span class="fw-bold text-dark fs-5">{{ atencion.conf_nombre }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-4 h-100 border border-light shadow-sm hover-lift">
+                                <small class="text-uppercase text-muted fw-bold d-block mb-1"><i class="fas fa-building text-primary me-2"></i>Área / Oficina</small>
+                                <span class="fw-bold text-dark fs-5">{{ atencion.area_usuaria }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <h5 class="fw-bold text-secondary mb-4"><i class="fas fa-stream me-2"></i>Línea de Tiempo del Ticket</h5>
+                    <div class="timeline position-relative ps-4 ms-2">
+                        <!-- Linea vertical -->
+                        <div class="position-absolute h-100 bg-light" style="width: 4px; left: 0; top: 0; border-radius: 2px;"></div>
+                        
+                        <!-- Paso 1: Solicitado -->
+                        <div class="timeline-step position-relative mb-5">
+                            <div class="position-absolute bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow" style="width: 30px; height: 30px; left: -13px; top: 0; z-index: 2;">
+                                <i class="fas fa-paper-plane small"></i>
+                            </div>
+                            <div class="ms-4">
+                                <h6 class="fw-bold mb-1 text-primary">Solicitud Recibida</h6>
+                                <p class="text-muted small mb-2"><i class="far fa-calendar-alt me-1"></i>{{ atencion.fecha_registro }} <i class="far fa-clock ms-2 me-1"></i>{{ atencion.hora_registro }}</p>
+                                <div class="bg-light p-3 rounded-3 text-secondary small shadow-sm border border-white">
+                                    {{ atencion.descripcion }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 2: En Proceso -->
+                        <div class="timeline-step position-relative mb-5">
+                            {% set en_proceso = atencion.fecha_inicio != '' or atencion.resultado == 'En Proceso' %}
+                            <div class="position-absolute {% if en_proceso %}bg-info text-white shadow{% else %}bg-secondary text-white opacity-50{% endif %} d-flex align-items-center justify-content-center rounded-circle" style="width: 30px; height: 30px; left: -13px; top: 0; z-index: 2; transition: all 0.3s;">
+                                <i class="fas fa-cog small {% if en_proceso %}fa-spin{% endif %}"></i>
+                            </div>
+                            <div class="ms-4 {% if not en_proceso %}opacity-50{% endif %}" style="transition: all 0.3s;">
+                                <h6 class="fw-bold mb-1 {% if en_proceso %}text-info{% else %}text-secondary{% endif %}">Atención en Proceso</h6>
+                                {% if en_proceso %}
+                                    {% if atencion.fecha_inicio %}
+                                        <p class="text-muted small mb-0"><i class="far fa-calendar-alt me-1"></i>Iniciado el: {{ atencion.fecha_inicio }}</p>
+                                    {% else %}
+                                        <p class="text-muted small mb-0"><i class="fas fa-tools me-1"></i>Técnico asignado y trabajando en el caso</p>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="text-muted small mb-0">En cola de espera de un técnico TI</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Resuelto -->
+                        <div class="timeline-step position-relative">
+                            {% set is_atendido = atencion.resultado == 'Atendido' %}
+                            {% set is_parcial = atencion.resultado == 'Parcial' %}
+                            {% set is_no_atendido = atencion.resultado == 'No atendido' %}
+                            {% set cerrado = is_atendido or is_parcial or is_no_atendido %}
+                            
+                            {% set bg_color = 'bg-success' if is_atendido else ('bg-warning text-dark' if is_parcial else ('bg-danger' if is_no_atendido else 'bg-secondary opacity-50')) %}
+                            {% set text_color = 'text-success' if is_atendido else ('text-warning' if is_parcial else ('text-danger' if is_no_atendido else 'text-secondary')) %}
+                            {% set border_color = 'border-success' if is_atendido else ('border-warning' if is_parcial else ('border-danger' if is_no_atendido else 'border-secondary')) %}
+                            
+                            {% set icon = 'fa-flag-checkered' if is_atendido else ('fa-exclamation-triangle' if is_parcial else 'fa-times-circle') %}
+                            
+                            <div class="position-absolute {{ bg_color }} text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 30px; height: 30px; left: -13px; top: 0; z-index: 2; transition: all 0.3s;">
+                                <i class="fas {{ icon }} small"></i>
+                            </div>
+                            <div class="ms-4 {% if not cerrado %}opacity-50{% endif %}" style="transition: all 0.3s;">
+                                <h6 class="fw-bold mb-1 {{ text_color }}">
+                                    {% if is_atendido %} Ticket Finalizado
+                                    {% elif is_parcial %} Atención Parcial
+                                    {% elif is_no_atendido %} Ticket No Atendido
+                                    {% else %} En espera de resolución
+                                    {% endif %}
+                                </h6>
+                                {% if cerrado %}
+                                    <p class="text-muted small mb-2"><i class="far fa-calendar-alt me-1"></i>Fecha de resolución: {{ atencion.fecha_fin }}</p>
+                                    <div class="bg-light p-3 rounded-3 text-secondary small shadow-sm border {{ border_color }} border-opacity-25">
+                                        <span class="fw-bold text-dark d-block mb-1">Técnico: {{ atencion.resp_nombre or 'Soporte TI' }}</span>
+                                        <span class="fw-bold text-dark d-block mb-1">Diagnóstico/Solución:</span>
+                                        {{ atencion.detalle_actividades }}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted small mb-0">El ticket aún no ha sido concluido por el área técnica.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .animation-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+    .animation-slide-up { animation: slideUp 0.6s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+</style>
+{% endblock %}

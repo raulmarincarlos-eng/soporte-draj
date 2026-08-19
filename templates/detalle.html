@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 no-print fade-in" style="position: relative; z-index: 1050;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+    </a>
+    <div>
+        <a href="{{ url_for('editar', id_str=atencion.id) }}" class="btn btn-warning me-2 fw-bold shadow-sm">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+        <div class="dropdown d-inline-block me-2">
+            <button class="btn btn-primary dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-print me-2"></i>Imprimir
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="imprimirCompleto()"><i class="fas fa-file-alt me-2 text-primary"></i>Hoja Completa (A4)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="imprimirMitad()"><i class="fas fa-scroll me-2 text-info"></i>Mitad de Hoja (Ahorro)</a></li>
+            </ul>
+        </div>
+        <button onclick="downloadPDF()" class="btn btn-danger shadow-sm">
+            <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+        </button>
+    </div>
+</div>
+
+<div id="documento_pdf" class="card shadow-lg border-0 print-border px-4 py-1" style="background: white;">
+    <!-- Header Logos for Print -->
+    <div class="print-header">
+        <img src="{{ url_for('static', filename='img/logo_gore_junin.png') }}" class="logo-left" alt="Gobierno Regional Junin">
+        <div class="print-title">
+            FORMATO DE REGISTRO Y CONFORMIDAD<br>
+            DE ATENCIÓN DE SOPORTE INFORMÁTICO - 2026
+        </div>
+        <div class="logo-right-container">
+            <img src="{{ url_for('static', filename='img/logo_dra_junin.jpg') }}" class="logo-right" alt="DRA Junin">
+        </div>
+    </div>
+
+    <!-- FORMATO FÍSICO (Simulación exacta de la imagen) -->
+    <div class="tables-wrapper">
+        <div class="tables-col">
+            <table class="form-table w-100">
+        <!-- I. DATOS GENERALES -->
+        <tr>
+            <td colspan="4" class="section-header">I. DATOS GENERALES</td>
+            <td class="text-center fw-bold fs-5" style="border-bottom: 1px solid #000; width: 22%;">
+                {{ atencion.id }}
+            </td>
+            <td class="text-end fw-bold" style="border-bottom: 1px solid #000; width: 10%;">Fecha:</td>
+            <td class="text-center" style="border-bottom: 1px solid #000; width: 20%;">{{ atencion.fecha_registro }}</td>
+            <td class="text-end fw-bold" style="border-bottom: 1px solid #000; width: 10%;">Hora:</td>
+            <td class="text-center" style="border-bottom: 1px solid #000; width: 15%;">{{ atencion.hora_registro }}</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="fw-bold field-label">Código de atención:</td>
+            <td colspan="6" class="field-value fs-4 text-center fw-bold">{{ atencion.id }}</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="fw-bold field-label">Área Usuaria:</td>
+            <td colspan="6" class="field-value text-primary-color">{{ atencion.area_usuaria }}</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="fw-bold field-label">Dirección/Oficina/Agencia:</td>
+            <td colspan="6" class="field-value text-primary-color">{{ atencion.direccion_oficina }}</td>
+        </tr>
+    </table>
+
+    <table class="form-table w-100 mt-2">
+        <!-- II. TIPO DE ATENCIÓN -->
+        <tr>
+            <td colspan="6" class="section-header">II. TIPO DE ATENCIÓN (Marcar)</td>
+        </tr>
+        <tr class="text-center fw-bold">
+            <td class="field-label" style="width: 15%;">Incidencia</td>
+            <td class="field-value text-center fs-5 text-primary-color" style="width: 15%;">{% if atencion.tipo_atencion == 'Incidencia' %}X{% endif %}</td>
+            <td class="field-label bg-light" style="width: 20%;">Requerimiento</td>
+            <td class="field-value text-center fs-5 text-primary-color bg-light" style="width: 15%;">{% if atencion.tipo_atencion == 'Requerimiento' %}X{% endif %}</td>
+            <td class="field-label" style="width: 15%;">Otros</td>
+            <td class="field-value text-center fs-5 text-primary-color" style="width: 20%;">{% if atencion.tipo_atencion == 'Otros' %}X{% endif %}</td>
+        </tr>
+    </table>
+
+    <table class="form-table w-100 mt-2">
+        <!-- III. DESCRIPCIÓN -->
+        <tr>
+            <td class="section-header">III. DESCRIPCIÓN DEL REQUERIMIENTO / INCIDENCIA</td>
+        </tr>
+        <tr>
+            <td class="field-value p-2 form-box-desc" style="vertical-align: top;">
+                <span class="fw-bold">Descripción detallada:</span> <span class="text-primary-color">{{ atencion.descripcion }}</span>
+            </td>
+        </tr>
+    </table>
+
+    <table class="form-table w-100 mt-2">
+        <!-- IV. CLASIFICACIÓN -->
+        <tr>
+            <td colspan="6" class="section-header">IV. CLASIFICACIÓN DEL SERVICIO</td>
+        </tr>
+        <tr>
+            <td class="field-label w-25">Software</td>
+            <td class="field-value text-center text-primary-color fs-5" style="width: 8%;">{% if atencion.clasif_software %}X{% endif %}</td>
+            <td class="field-label w-25 bg-light">Hardware</td>
+            <td class="field-value text-center text-primary-color fs-5 bg-light" style="width: 8%;">{% if atencion.clasif_hardware %}X{% endif %}</td>
+            <td class="field-label w-25">Red / Internet</td>
+            <td class="field-value text-center text-primary-color fs-5" style="width: 8%;">{% if atencion.clasif_red %}X{% endif %}</td>
+        </tr>
+        <tr>
+            <td class="field-label w-25 bg-light">Accesos Sistemas</td>
+            <td class="field-value text-center text-primary-color fs-5 bg-light" style="width: 8%;">{% if atencion.clasif_accesos %}X{% endif %}</td>
+            <td class="field-label w-25">Biométrico</td>
+            <td class="field-value text-center text-primary-color fs-5" style="width: 8%;">{% if atencion.clasif_biometrico %}X{% endif %}</td>
+            <td class="field-label w-25 bg-light">Otros</td>
+            <td class="field-value text-center text-primary-color fs-5 bg-light" style="width: 8%;">{% if atencion.clasif_otros %}X{% endif %}</td>
+        </tr>
+    </table>
+        </div>
+        <div class="tables-col">
+    <table class="form-table w-100 mt-2">
+        <!-- V. ATENCIÓN REALIZADA -->
+        <tr>
+            <td colspan="4" class="section-header">V. ATENCIÓN REALIZADA (Informática)</td>
+        </tr>
+        <tr>
+            <td class="field-label fw-bold" style="width: 20%;">Fecha de inicio:</td>
+            <td class="field-value text-center text-primary-color" style="width: 30%;">{{ atencion.fecha_inicio or '' }}</td>
+            <td class="field-label fw-bold" style="width: 20%;">Fecha de fin:</td>
+            <td class="field-value text-center text-primary-color" style="width: 30%;">{{ atencion.fecha_fin or '' }}</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="field-value p-2 form-box-act" style="vertical-align: top;">
+                Detalle de actividades ejecutadas (procedimientos, configuraciones, pruebas):<br>
+                <span class="text-primary-color" style="white-space: pre-wrap;">{{ atencion.detalle_actividades }}</span>
+            </td>
+        </tr>
+    </table>
+
+    <table class="form-table w-100 mt-2">
+        <!-- VI. RESULTADO -->
+        <tr>
+            <td colspan="6" class="section-header">VI. RESULTADO DE LA ATENCIÓN (Marcar)</td>
+        </tr>
+        <tr class="text-center fw-bold">
+            <td class="field-label" style="width: 15%;">Atendido</td>
+            <td class="field-value text-center fs-5 text-primary-color" style="width: 15%;">{% if atencion.resultado == 'Atendido' %}&check;{% endif %}</td>
+            <td class="field-label bg-light" style="width: 20%;">Parcial</td>
+            <td class="field-value text-center fs-5 text-primary-color bg-light" style="width: 15%;">{% if atencion.resultado == 'Parcial' %}&check;{% endif %}</td>
+            <td class="field-label" style="width: 15%;">No atendido</td>
+            <td class="field-value text-center fs-5 text-primary-color" style="width: 20%;">{% if atencion.resultado == 'No atendido' %}&check;{% endif %}</td>
+        </tr>
+        <tr>
+            <td colspan="6" class="field-value p-2" style="height: 35px; border-top: none;">
+                <span class="fw-bold">Observaciones:</span> <span class="text-primary-color">{{ atencion.observaciones }}</span>
+            </td>
+        </tr>
+    </table>
+
+    <table class="form-table w-100 mt-1">
+        <!-- VII. CONFORMIDAD -->
+        <tr>
+            <td colspan="3" class="section-header">VII. CONFORMIDAD DEL ÁREA USUARIA</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="field-value p-1 small" style="border-bottom: none;">
+                Declaro la conformidad de la atención brindada y el correcto funcionamiento del servicio.
+            </td>
+        <tr>
+            <td class="field-label fw-bold" style="width: 15%;">Nombre:</td>
+            <td class="field-value text-primary-color text-uppercase" style="width: 65%;">{{ atencion.conf_nombre }}</td>
+            <td class="field-label fw-bold" style="width: 20%; border-bottom: none;">Fecha:</td>
+        </tr>
+        <tr>
+            <td class="field-label fw-bold">Cargo:</td>
+            <td class="field-value text-primary-color">{{ atencion.conf_cargo }}</td>
+            <td class="text-center text-primary-color" style="border-top: none; vertical-align: top;">{{ atencion.conf_fecha or '' }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border-right: none; border-top: none;"></td>
+            <td class="text-center pb-2 pt-3" style="border-left: 1px solid #000; height: 40px; vertical-align: bottom;">
+                <span class="border-top px-4 d-inline-block border-dark">Firma y/o Sello:</span>
+            </td>
+        </tr>
+    </table>
+
+    <table class="form-table w-100 mt-2">
+        <!-- VIII. RESPONSABLE -->
+        <tr>
+            <td colspan="3" class="section-header">VIII. RESPONSABLE DE SOPORTE TI</td>
+        </tr>
+        <tr>
+            <td class="field-label fw-bold" style="width: 15%;">Nombre:</td>
+            <td class="field-value text-primary-color text-uppercase" style="width: 65%;">{{ atencion.resp_nombre }}</td>
+            <td class="field-label fw-bold" style="width: 20%; border-bottom: none;">Fecha:</td>
+        </tr>
+        <tr>
+            <td class="field-label fw-bold">Cargo:</td>
+            <td class="field-value">{{ atencion.resp_cargo }}</td>
+            <td class="text-center text-primary-color" style="border-top: none; vertical-align: top;">{{ atencion.resp_fecha or '' }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border-right: none; border-top: none;"></td>
+            <td class="text-center pb-2 pt-3" style="border-left: 1px solid #000; height: 40px; vertical-align: bottom;">
+                <span class="border-top px-4 d-inline-block border-dark">Firma y/o Sello:</span>
+            </td>
+        </tr>
+    </table>
+    
+    {% if atencion.ip_cliente %}
+    <div class="mt-2" style="border-top: 1px dashed #ccc; padding-top: 8px; display: flex; align-items: flex-start; gap: 10px; font-family: 'Courier New', Courier, monospace; font-size: 8px; color: #555;">
+        <div style="font-size: 20px; color: #888; padding-top: 2px;">
+            <i class="fas fa-fingerprint"></i>
+        </div>
+        <div style="line-height: 1.3;">
+            <strong style="color: #000; font-size: 9px;">HUELLA DIGITAL DE SISTEMA / CERTIFICACIÓN DE REGISTRO ELECTRÓNICO</strong><br>
+            <span><strong>IP Origen:</strong> {{ atencion.ip_cliente }}</span> &nbsp;|&nbsp; 
+            <span><strong>Timestamp:</strong> {{ atencion.fecha_registro }} {{ atencion.hora_registro }}</span> &nbsp;|&nbsp; 
+            <span><strong>ID Transacción:</strong> {{ atencion.id }}</span><br>
+            <span style="color: #777;"><strong>User-Agent:</strong> {{ atencion.user_agent }}</span>
+        </div>
+    </div>
+    {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-box-desc { height: 40px; }
+    .form-box-act { height: 70px; }
+    .form-box-firma { height: 50px; }
+    .print-header { margin-bottom: 5px !important; padding-bottom: 5px !important; }
+    .tables-col {
+        width: 100%;
+    }
+    .half-page-mode .tables-wrapper {
+        display: block;
+        width: 100%;
+    }
+    .half-page-mode .tables-col {
+        width: 49%;
+        float: left;
+    }
+    .half-page-mode .tables-col:nth-child(2) {
+        float: right;
+    }
+    .half-page-mode .tables-wrapper::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    .half-page-mode {
+        font-size: 11px !important;
+    }
+    .half-page-mode .form-table td {
+        padding: 2px !important;
+    }
+    .half-page-mode .print-header {
+        margin-bottom: 5px !important;
+    }
+    .half-page-mode .print-header img {
+        height: 45px !important;
+    }
+    .half-page-mode .print-title {
+        font-size: 13px !important;
+    }
+    .half-page-mode .fs-5, .half-page-mode .fs-4 {
+        font-size: 14px !important;
+    }
+    .half-page-mode .section-header {
+        padding: 2px !important;
+        font-size: 12px !important;
+    }
+    .half-page-mode .field-value[style*="height"] {
+        height: auto !important;
+        min-height: 25px !important;
+    }
+    .half-page-mode .text-center.pb-2.pt-5[style*="height"] {
+        height: 40px !important;
+        padding-top: 15px !important;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function imprimirCompleto() {
+    document.getElementById('documento_pdf').classList.remove('half-page-mode');
+    window.print();
+}
+
+function imprimirMitad() {
+    const doc = document.getElementById('documento_pdf');
+    doc.classList.add('half-page-mode');
+
+    window.print();
+    
+    // Remover la clase después de que se abra el diálogo de impresión
+    setTimeout(() => {
+        doc.classList.remove('half-page-mode');
+    }, 2000);
+}
+
+function downloadPDF() {
+    const element = document.getElementById('documento_pdf');
+    element.classList.remove('half-page-mode');
+    // Quitar sombra para que el PDF se vea más limpio
+    element.classList.remove('shadow-lg');
+    
+    const originalScroll = window.scrollY;
+    window.scrollTo(0, 0); // Evitar bug de html2canvas donde corta la hoja si hay scroll
+    
+    const opt = {
+        margin:       3,
+        filename:     'Atencion_{{ atencion.id }}_DRAJ.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+        // Restaurar estado
+        element.classList.add('shadow-lg');
+        window.scrollTo(0, originalScroll);
+    });
+}
+</script>
+{% endblock %}

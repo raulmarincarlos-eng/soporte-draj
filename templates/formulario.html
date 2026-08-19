@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+    <h2 class="text-dark fw-bold mb-0">{% if atencion %}Editar Registro #{{ atencion.id }}{% else %}Nuevo Registro de Atención{% endif %}</h2>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver
+    </a>
+</div>
+
+<style>
+    body { background-color: #f4f7f6; padding-bottom: 100px; }
+    .modern-island {
+        background: #fff;
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.03);
+        padding: 30px;
+        margin-bottom: 25px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .modern-island:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    }
+    .island-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        border-bottom: 2px dashed #eaeaea;
+        padding-bottom: 15px;
+    }
+    .island-number {
+        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        margin-right: 15px;
+        box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+    }
+    .island-title { margin: 0; font-weight: 700; color: #2c3e50; font-size: 1.1rem; letter-spacing: 0.5px; }
+    
+    .soft-input {
+        background-color: #f8f9fa;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .soft-input:focus {
+        background-color: #fff;
+        border-color: #198754;
+        box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15);
+        outline: none;
+    }
+    
+    .pill-label {
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.2s;
+        border: 2px solid #e9ecef;
+        background: #fff;
+        color: #6c757d;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    .pill-label:hover { border-color: #198754; color: #198754; }
+    .btn-check:checked + .pill-label {
+        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 6px 15px rgba(25, 135, 84, 0.3);
+        transform: scale(1.05);
+    }
+
+    .btn-check:checked + .pill-label-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #ffca28 100%);
+        color: #000;
+        box-shadow: 0 6px 15px rgba(255, 193, 7, 0.3);
+        transform: scale(1.05);
+    }
+    .btn-check:checked + .pill-label-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #e57373 100%);
+        color: white;
+        box-shadow: 0 6px 15px rgba(220, 53, 69, 0.3);
+        transform: scale(1.05);
+    }
+
+    .sticky-action-bar {
+        position: fixed;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        padding: 12px 20px;
+        border-radius: 50px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid rgba(255,255,255,0.6);
+        animation: slideUp 0.5s ease-out;
+    }
+    @keyframes slideUp {
+        from { bottom: -100px; opacity: 0; }
+        to { bottom: 25px; opacity: 1; }
+    }
+    
+    .form-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #7f8c8d; font-weight: 700; }
+</style>
+
+<form method="POST" action="{% if atencion %}{{ url_for('editar', id_str=atencion.id) }}{% else %}{{ url_for('nuevo') }}{% endif %}">
+
+    <!-- I. DATOS GENERALES -->
+    <div class="modern-island fade-in">
+        <div class="island-header">
+            <div class="island-number">I</div>
+            <h5 class="island-title">DATOS GENERALES</h5>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <label class="form-label">Código de atención</label>
+                <input type="text" class="form-control soft-input text-center fw-bold fs-5 text-primary bg-light" name="id_atencion" value="{{ atencion.id if atencion else new_id }}" readonly style="border: none;">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Fecha</label>
+                <input type="date" class="form-control soft-input" name="fecha_registro" id="fecha_registro" value="{{ atencion.fecha_registro if atencion else '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Hora</label>
+                <input type="time" class="form-control soft-input" name="hora_registro" id="hora_registro" value="{{ atencion.hora_registro if atencion else '' }}" step="1">
+            </div>
+        </div>
+        
+        <div class="row g-4 mt-1">
+            <div class="col-md-6">
+                <label class="form-label">Dirección / Oficina Principal</label>
+                <select class="form-select soft-input text-uppercase" name="direccion" id="direccion" required onchange="cargarSubAreas()">
+                    <option value="">-- Seleccione Dirección --</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Sub-Área / Coordinación</label>
+                <select class="form-select soft-input text-uppercase" name="sub_area" id="sub_area">
+                    <option value="">-- Seleccione Sub-área --</option>
+                </select>
+            </div>
+        </div>
+
+        {% if atencion and atencion.contacto_usuario %}
+        <div class="row g-4 mt-3">
+            <div class="col-md-6">
+                <label class="form-label text-info"><i class="fas fa-phone-alt me-2"></i>Celular / Anexo del Usuario</label>
+                <input type="text" class="form-control soft-input bg-white text-dark border-info" value="{{ atencion.contacto_usuario }}" readonly>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-info"><i class="fas fa-desktop me-2"></i>Equipo / AnyDesk</label>
+                <input type="text" class="form-control soft-input bg-white text-dark border-info" value="{{ atencion.equipo_usuario or 'No especificado' }}" readonly>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- II. TIPO DE ATENCIÓN -->
+    <div class="modern-island fade-in" style="animation-delay: 0.1s;">
+        <div class="island-header">
+            <div class="island-number">II</div>
+            <h5 class="island-title">TIPO DE ATENCIÓN</h5>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <input type="radio" class="btn-check" name="tipo_atencion" id="tipo_incidencia" value="Incidencia" {% if atencion and atencion.tipo_atencion == 'Incidencia' %}checked{% endif %} required>
+                <label class="pill-label pill-label-warning py-3 text-center d-flex flex-column" for="tipo_incidencia">
+                    <i class="fas fa-exclamation-triangle mb-2 fs-3"></i> Incidencia
+                </label>
+            </div>
+            <div class="col-md-4">
+                <input type="radio" class="btn-check" name="tipo_atencion" id="tipo_requerimiento" value="Requerimiento" {% if atencion and atencion.tipo_atencion == 'Requerimiento' %}checked{% endif %}>
+                <label class="pill-label py-3 text-center d-flex flex-column" style="border-color: #0d6efd; color: #0d6efd;" onmouseover="if(!document.getElementById('tipo_requerimiento').checked){this.style.background='#0d6efd';this.style.color='#fff';}" onmouseout="if(!document.getElementById('tipo_requerimiento').checked){this.style.background='#fff';this.style.color='#0d6efd';}" onclick="setTimeout(()=>this.style.background='linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%)', 10)" for="tipo_requerimiento" id="req_label">
+                    <i class="fas fa-clipboard-list mb-2 fs-3"></i> Requerimiento
+                </label>
+            </div>
+            <div class="col-md-4">
+                <input type="radio" class="btn-check" name="tipo_atencion" id="tipo_otros" value="Otros" {% if atencion and atencion.tipo_atencion == 'Otros' %}checked{% endif %}>
+                <label class="pill-label py-3 text-center d-flex flex-column" for="tipo_otros">
+                    <i class="fas fa-ellipsis-h mb-2 fs-3"></i> Otros
+                </label>
+            </div>
+        </div>
+        <script>
+            document.querySelectorAll('input[name="tipo_atencion"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const reqLabel = document.getElementById('req_label');
+                    if(document.getElementById('tipo_requerimiento').checked) {
+                        reqLabel.style.background = 'linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%)';
+                        reqLabel.style.color = '#fff';
+                        reqLabel.style.borderColor = 'transparent';
+                    } else {
+                        reqLabel.style.background = '#fff';
+                        reqLabel.style.color = '#0d6efd';
+                        reqLabel.style.borderColor = '#0d6efd';
+                    }
+                });
+            });
+            window.addEventListener('DOMContentLoaded', () => { if(document.getElementById('tipo_requerimiento').checked) { document.getElementById('req_label').style.background = 'linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%)'; document.getElementById('req_label').style.color = '#fff'; document.getElementById('req_label').style.borderColor = 'transparent'; }});
+        </script>
+    </div>
+
+    <!-- III. DESCRIPCIÓN -->
+    <div class="modern-island fade-in" style="animation-delay: 0.15s;">
+        <div class="island-header">
+            <div class="island-number">III</div>
+            <h5 class="island-title">DESCRIPCIÓN DEL REQUERIMIENTO / INCIDENCIA</h5>
+        </div>
+        <textarea class="form-control soft-input" name="descripcion" rows="3" placeholder="Ej: Configurar e instalar la impresora EPSON" required>{{ atencion.descripcion if atencion else '' }}</textarea>
+    </div>
+
+    <!-- IV. CLASIFICACIÓN -->
+    <div class="modern-island fade-in" style="animation-delay: 0.2s;">
+        <div class="island-header">
+            <div class="island-number">IV</div>
+            <h5 class="island-title">CLASIFICACIÓN DEL SERVICIO</h5>
+        </div>
+        <div class="row g-3">
+            <div class="col-6 col-md-4">
+                <input class="btn-check" type="checkbox" name="clasif_software" id="clasif_software" value="1" {% if atencion and atencion.clasif_software %}checked{% endif %}>
+                <label class="pill-label" for="clasif_software"><i class="fas fa-laptop-code me-2"></i>Software</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input class="btn-check" type="checkbox" name="clasif_hardware" id="clasif_hardware" value="1" {% if atencion and atencion.clasif_hardware %}checked{% endif %}>
+                <label class="pill-label" for="clasif_hardware"><i class="fas fa-server me-2"></i>Hardware</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input class="btn-check" type="checkbox" name="clasif_red" id="clasif_red" value="1" {% if atencion and atencion.clasif_red %}checked{% endif %}>
+                <label class="pill-label" for="clasif_red"><i class="fas fa-network-wired me-2"></i>Red / Internet</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input class="btn-check" type="checkbox" name="clasif_accesos" id="clasif_accesos" value="1" {% if atencion and atencion.clasif_accesos %}checked{% endif %}>
+                <label class="pill-label" for="clasif_accesos"><i class="fas fa-key me-2"></i>Accesos</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input class="btn-check" type="checkbox" name="clasif_biometrico" id="clasif_biometrico" value="1" {% if atencion and atencion.clasif_biometrico %}checked{% endif %}>
+                <label class="pill-label" for="clasif_biometrico"><i class="fas fa-fingerprint me-2"></i>Biométrico</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input class="btn-check" type="checkbox" name="clasif_otros" id="clasif_otros" value="1" {% if atencion and atencion.clasif_otros %}checked{% endif %}>
+                <label class="pill-label" for="clasif_otros"><i class="fas fa-ellipsis-h me-2"></i>Otros</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- V. ATENCIÓN REALIZADA -->
+    <div class="modern-island fade-in" style="animation-delay: 0.25s;">
+        <div class="island-header">
+            <div class="island-number">V</div>
+            <h5 class="island-title">ATENCIÓN REALIZADA (INFORMÁTICA)</h5>
+        </div>
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Fecha de inicio</label>
+                <input type="date" class="form-control soft-input" name="fecha_inicio" id="fecha_inicio_atencion" value="{{ atencion.fecha_inicio if atencion else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Fecha de fin</label>
+                <input type="date" class="form-control soft-input" name="fecha_fin" value="{{ atencion.fecha_fin if atencion else '' }}">
+            </div>
+        </div>
+        
+        <div class="mb-3 p-3 rounded-3" style="background: #eef9f4; border: 1px dashed #20c997;">
+            <label class="form-label text-success"><i class="fas fa-bolt me-2"></i>Soluciones Automáticas / Plantillas Rápidas:</label>
+            <select class="form-select soft-input bg-white" id="respuestas_rapidas" onchange="insertarRespuestaRapida()">
+                <option value="">-- Selecciona una plantilla para autocompletar --</option>
+                <option value="Se realizó la instalación y configuración de los controladores de la impresora. Pruebas de impresión exitosas.">Impresora - Instalación/Configuración</option>
+                <option value="Se revisó la conectividad física, se reemplazó cableado/conector defectuoso y se restauró el acceso a la red/internet.">Red - Restablecer Conexión</option>
+                <option value="Se procedió con el reseteo de credenciales y restablecimiento de contraseña del sistema. Acceso verificado.">Accesos - Reseteo de Contraseña</option>
+                <option value="Se realizó el mantenimiento preventivo, limpieza de temporales, actualización de antivirus y escaneo de malware. Equipo estable.">Software - Mantenimiento y Antivirus</option>
+                <option value="Se instaló el paquete ofimático y utilitarios requeridos por el área. Activación y pruebas correctas.">Software - Instalación de Programas</option>
+                <option value="Se brindó soporte remoto vía AnyDesk/TeamViewer, resolviendo la incidencia de software reportada.">Soporte Remoto General</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label">Detalle de actividades ejecutadas:</label>
+            <textarea class="form-control soft-input" name="detalle_actividades" id="detalle_actividades" rows="4" placeholder="- Instalación de controladores...">{{ atencion.detalle_actividades if atencion else '' }}</textarea>
+        </div>
+    </div>
+
+    <!-- VI. RESULTADO -->
+    <div class="modern-island fade-in" style="animation-delay: 0.3s;">
+        <div class="island-header">
+            <div class="island-number">VI</div>
+            <h5 class="island-title">ESTADO / RESULTADO DE LA ATENCIÓN</h5>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <input type="radio" class="btn-check" name="resultado" id="res_en_proceso" value="En Proceso" {% if atencion and atencion.resultado == 'En Proceso' %}checked{% endif %} required>
+                <label class="pill-label text-center fs-5" for="res_en_proceso" style="color: #0dcaf0; border-color: #0dcaf0;" onmouseover="if(!document.getElementById('res_en_proceso').checked){this.style.background='#0dcaf0';this.style.color='#fff';}" onmouseout="if(!document.getElementById('res_en_proceso').checked){this.style.background='#fff';this.style.color='#0dcaf0';}" onclick="setTimeout(()=>this.style.background='#0dcaf0', 10)"><i class="fas fa-spinner fa-pulse me-2"></i>En Proceso</label>
+            </div>
+            <div class="col-md-3">
+                <input type="radio" class="btn-check" name="resultado" id="res_atendido" value="Atendido" {% if atencion and atencion.resultado == 'Atendido' %}checked{% endif %}>
+                <label class="pill-label text-center fs-5" for="res_atendido"><i class="fas fa-check-circle me-2"></i>Atendido</label>
+            </div>
+            <div class="col-md-3">
+                <input type="radio" class="btn-check" name="resultado" id="res_parcial" value="Parcial" {% if atencion and atencion.resultado == 'Parcial' %}checked{% endif %}>
+                <label class="pill-label pill-label-warning text-center fs-5" for="res_parcial"><i class="fas fa-minus-circle me-2"></i>Parcial</label>
+            </div>
+            <div class="col-md-3">
+                <input type="radio" class="btn-check" name="resultado" id="res_noatendido" value="No atendido" {% if atencion and atencion.resultado == 'No atendido' %}checked{% endif %}>
+                <label class="pill-label pill-label-danger text-center fs-5" for="res_noatendido"><i class="fas fa-times-circle me-2"></i>No Atendido</label>
+            </div>
+        </div>
+        <style>
+            .btn-check:checked + label[for="res_en_proceso"] {
+                background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important;
+                color: white !important;
+                border-color: transparent !important;
+                box-shadow: 0 6px 15px rgba(13, 202, 240, 0.3);
+                transform: scale(1.05);
+            }
+        </style>
+        <div>
+            <label class="form-label">Observaciones adicionales:</label>
+            <input type="text" class="form-control soft-input" name="observaciones" value="{{ atencion.observaciones if atencion else '' }}" placeholder="Opcional">
+        </div>
+    </div>
+
+    <!-- VII. CONFORMIDAD Y RESPONSABLE -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="modern-island fade-in h-100 mb-0" style="animation-delay: 0.35s;">
+                <div class="island-header">
+                    <div class="island-number">VII</div>
+                    <h5 class="island-title">CONFORMIDAD DEL USUARIO</h5>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-danger"><i class="fas fa-file-signature me-1"></i>Firma Física (Auditoría):</label>
+                    <select class="form-select soft-input border-danger" name="estado_firma" style="color: #dc3545; font-weight: bold;">
+                        <option value="Pendiente" {% if atencion and atencion.estado_firma == 'Pendiente' %}selected{% endif %}>Pendiente (Falta Imprimir)</option>
+                        <option value="Firmado y Archivado" {% if atencion and atencion.estado_firma == 'Firmado y Archivado' %}selected{% endif %}>Firmado y Archivado</option>
+                    </select>
+                </div>
+                <div class="mb-3 mt-4">
+                    <label class="form-label">Nombre Usuario:</label>
+                    <input type="text" class="form-control soft-input text-uppercase" name="conf_nombre" value="{{ atencion.conf_nombre if atencion else '' }}">
+                </div>
+                <div class="row g-3">
+                    <div class="col-7">
+                        <label class="form-label">Cargo:</label>
+                        <input type="text" class="form-control soft-input" name="conf_cargo" value="{{ atencion.conf_cargo if atencion else '' }}">
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">Fecha:</label>
+                        <input type="date" class="form-control soft-input" name="conf_fecha" id="conf_fecha" value="{{ atencion.conf_fecha if atencion else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="modern-island fade-in h-100 mb-0" style="animation-delay: 0.4s; background: #fafbfc;">
+                <div class="island-header">
+                    <div class="island-number" style="background: #6c757d; box-shadow: none;">VIII</div>
+                    <h5 class="island-title text-secondary">RESPONSABLE TI</h5>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nombre Soporte:</label>
+                    <input type="text" class="form-control soft-input text-uppercase bg-white" name="resp_nombre" value="{{ atencion.resp_nombre if atencion and atencion.resp_nombre else session.get('nombre', '') }}">
+                </div>
+                <div class="row g-3">
+                    <div class="col-7">
+                        <label class="form-label">Cargo:</label>
+                        <input type="text" class="form-control soft-input bg-white" name="resp_cargo" value="{{ atencion.resp_cargo if atencion else 'Responsable de Informática' }}">
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">Fecha:</label>
+                        <input type="date" class="form-control soft-input bg-white" name="resp_fecha" id="resp_fecha" value="{{ atencion.resp_fecha if atencion else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÓN DE GUARDAR FLOTANTE (STICKY) -->
+    <div class="sticky-action-bar">
+        <span class="text-muted d-none d-md-inline fw-bold me-2">¿Todo listo?</span>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-light rounded-pill px-4 shadow-sm fw-bold border">Cancelar</a>
+        <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 shadow fw-bold hover-scale" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%); border: none;">
+            <i class="fas fa-save me-2"></i>{% if atencion %}Guardar Cambios{% else %}Guardar Registro{% endif %}
+        </button>
+    </div>
+
+</form>
+
+<script>
+    const areasDRAJ = {
+        "Dirección Regional": ["Imagen Institucional"],
+        "Dir. de Forestales, Fauna Silvestre y Asuntos Ambientales": [],
+        "Dir. Estadística e Información Agraria": ["Área Administrativa", "Estadísticas Agrícolas", "Estadísticas Pecuarias", "Área Informática"],
+        "Dir. Desarrollo Agropecuario": ["Área Administrativa", "Unidad de Cultivos", "Unidad de Crianzas", "Unidad de Ferias Agropecuarias", "Unidad de Camélidos Sudamericanos"],
+        "Dir. Titulación de Tierras y Catastro Rural": ["Área Administrativa", "Atención al Usuario", "Unidad de Comunidades Campesinas y Nativas", "Unidad de Predios Rurales - Saneamiento Físico", "Unidad de Predios Rurales - Saneamiento Legal", "Área de Segundos Actos - Saneamiento Físico", "Unidad de Sistemas, Catastro y Archivo"],
+        "Oficina de Administración": ["Control Previo", "Área de Gestión de RRHH", "Coord. de Bienestar Social", "Coord. de Control de Personal", "Coord. de Registro y Escalafón", "Coord. de Registro y Reconocimiento", "Coord. de Remuneraciones"],
+        "Oficina de Logística": ["Coord. de Almacén", "Coord. de Archivo Central", "Coord. de Patrimonio", "Trámite Documentario", "Coord. de Programa de Maquinaria Agrícola e Industria Pesada", "Coord. de Vigilancia", "Secretaría Técnica de Proc. Admin. Disciplinarios"],
+        "Oficina de Tesorería": ["Coord. de Pagaduría", "Coord. de Recaudación"],
+        "Oficina de Planeamiento, Presupuesto y Modernización": ["Área de Gestión Operativa y Estratégica", "Área de Inversiones y Coop. Técnica Internacional", "Área de Organización y Modernización", "Área de Presupuesto"],
+        "Oficina de Asesoría Jurídica": ["Área de Asuntos Administrativos", "Área de Asuntos Contenciosos"],
+        "Agencias Agrarias y Oficinas Remotas": ["Agencia Agraria Chanchamayo", "Agencia Agraria Chupaca", "Agencia Agraria Concepción", "Agencia Agraria Jauja", "Agencia Agraria Junín", "Agencia Agraria Tarma", "Agencia Agraria Satipo", "Agencia Agraria Yauli - La Oroya", "Oficina Agraria Sapallanga"]
+    };
+
+    function initAreas() {
+        const dirSelect = document.getElementById('direccion');
+        const dirActual = "{{ direccion_actual|default('') }}".toLowerCase();
+        
+        for (let dir in areasDRAJ) {
+            let opt = document.createElement('option');
+            opt.value = dir;
+            opt.textContent = dir;
+            if (dir.toLowerCase() === dirActual) opt.selected = true;
+            dirSelect.appendChild(opt);
+        }
+        
+        if (dirActual) cargarSubAreas("{{ sub_area_actual|default('') }}".toLowerCase());
+    }
+
+    function cargarSubAreas(subAreaActual = "") {
+        const dirSelect = document.getElementById('direccion');
+        const subSelect = document.getElementById('sub_area');
+        const selectedDir = dirSelect.value;
+        
+        subSelect.innerHTML = '<option value="">-- Seleccione Sub-área --</option>';
+        
+        if (selectedDir && areasDRAJ[selectedDir].length > 0) {
+            areasDRAJ[selectedDir].forEach(sub => {
+                let opt = document.createElement('option');
+                opt.value = sub;
+                opt.textContent = sub;
+                if (sub.toLowerCase() === subAreaActual) opt.selected = true;
+                subSelect.appendChild(opt);
+            });
+            subSelect.required = true;
+        } else {
+            subSelect.required = false;
+        }
+    }
+
+    function insertarRespuestaRapida() {
+        const select = document.getElementById('respuestas_rapidas');
+        const textarea = document.getElementById('detalle_actividades');
+        
+        if (select.value) {
+            // Si el textarea ya tiene texto, añadir en una nueva línea. Si no, reemplazar.
+            if (textarea.value.trim() !== '') {
+                textarea.value += '\n- ' + select.value;
+            } else {
+                textarea.value = '- ' + select.value;
+            }
+            // Regresar el select a su estado inicial
+            select.selectedIndex = 0;
+            
+            // Marcar el estado como atendido automáticamente para ahorrar otro clic
+            const resAtendido = document.getElementById('res_atendido');
+            if(resAtendido) resAtendido.checked = true;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        initAreas();
+        
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0];
+        const timeString = today.toTimeString().split(':')[0] + ':' + today.toTimeString().split(':')[1];
+        
+        // Autocompletar fechas vacías con la fecha de hoy, muy útil para tickets web pendientes
+        if(!document.getElementById('fecha_registro').value) document.getElementById('fecha_registro').value = dateString;
+        if(!document.getElementById('hora_registro').value) document.getElementById('hora_registro').value = timeString;
+        if(!document.getElementById('fecha_inicio_atencion').value) document.getElementById('fecha_inicio_atencion').value = dateString;
+        
+        // Solo autocompletar la fecha de fin y firmas si se marca como atendido, o si están vacías
+        const fechaFin = document.querySelector('input[name="fecha_fin"]');
+        if(fechaFin && !fechaFin.value) fechaFin.value = dateString;
+        
+        const confFecha = document.getElementById('conf_fecha');
+        if(confFecha && !confFecha.value) confFecha.value = dateString;
+        
+        const respFecha = document.getElementById('resp_fecha');
+        if(respFecha && !respFecha.value) respFecha.value = dateString;
+    });
+</script>
+{% endblock %}

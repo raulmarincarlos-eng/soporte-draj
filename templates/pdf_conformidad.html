@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Formato de Conformidad - {{ atencion.id }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #333;
+        }
+        h1 {
+            font-size: 14pt;
+            text-align: center;
+            color: #0a6b29;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .table th, .table td {
+            border: 1px solid #666;
+            padding: 6px;
+            vertical-align: top;
+        }
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+            font-weight: bold;
+            width: 30%;
+        }
+        .section-title {
+            background-color: #0b4e85;
+            color: white;
+            font-weight: bold;
+            padding: 5px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 12pt;
+        }
+        .signatures {
+            margin-top: 50px;
+            width: 100%;
+        }
+        .sig-box {
+            width: 45%;
+            display: inline-block;
+            text-align: center;
+        }
+        .sig-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 0 auto;
+            margin-top: 50px;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header_content">
+        <table style="width: 100%; border-bottom: 2px solid #0a6b29; padding-bottom: 10px;">
+            <tr>
+                <td style="width: 33%;"><strong>SISTC-DRAJ</strong></td>
+                <td style="width: 34%; text-align: center; font-size: 10pt; font-weight: bold;">OFICINA DE TECNOLOGÍA DE LA INFORMACIÓN</td>
+                <td style="width: 33%; text-align: right; font-size: 12pt; color: #f26522;"><strong>TICKET: {{ atencion.id }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="footer_content" style="text-align: center; font-size: 8pt; color: #666; border-top: 1px solid #ccc; padding-top: 5px;">
+        Documento generado automáticamente por SISTC-DRAJ - Página <pdf:pagenumber> de <pdf:pagecount>
+    </div>
+
+    <h1>FORMATO DE REGISTRO Y CONFORMIDAD<br>DE ATENCIÓN DE SOPORTE INFORMÁTICO - 2026</h1>
+
+    <div class="section-title">1. DATOS DE LA SOLICITUD</div>
+    <table class="table">
+        <tr>
+            <th>Fecha y Hora de Solicitud:</th>
+            <td>{{ atencion.fecha_registro }} - {{ atencion.hora_registro }}</td>
+        </tr>
+        <tr>
+            <th>Área Usuaria:</th>
+            <td>{{ atencion.area_usuaria }}</td>
+        </tr>
+        <tr>
+            <th>Oficina/Dirección:</th>
+            <td>{{ atencion.direccion_oficina }}</td>
+        </tr>
+        <tr>
+            <th>Tipo de Atención:</th>
+            <td>{{ atencion.tipo_atencion }}</td>
+        </tr>
+        <tr>
+            <th>Descripción del Problema:</th>
+            <td>{{ atencion.descripcion }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">2. DETALLE DE ATENCIÓN (Uso exclusivo de TI)</div>
+    <table class="table">
+        <tr>
+            <th>Clasificación:</th>
+            <td>
+                {% if atencion.clasif_software %}[X] Software &nbsp;&nbsp;{% else %}[ ] Software &nbsp;&nbsp;{% endif %}
+                {% if atencion.clasif_hardware %}[X] Hardware &nbsp;&nbsp;{% else %}[ ] Hardware &nbsp;&nbsp;{% endif %}
+                {% if atencion.clasif_red %}[X] Red/Internet &nbsp;&nbsp;{% else %}[ ] Red/Internet &nbsp;&nbsp;{% endif %}<br>
+                {% if atencion.clasif_accesos %}[X] Accesos &nbsp;&nbsp;{% else %}[ ] Accesos &nbsp;&nbsp;{% endif %}
+                {% if atencion.clasif_biometrico %}[X] Biométrico &nbsp;&nbsp;{% else %}[ ] Biométrico &nbsp;&nbsp;{% endif %}
+                {% if atencion.clasif_otros %}[X] Otros{% else %}[ ] Otros{% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Fecha Inicio Atención:</th>
+            <td>{{ atencion.fecha_inicio or '---' }}</td>
+        </tr>
+        <tr>
+            <th>Fecha Fin Atención:</th>
+            <td>{{ atencion.fecha_fin or '---' }}</td>
+        </tr>
+        <tr>
+            <th>Diagnóstico / Actividades Realizadas:</th>
+            <td>{{ atencion.detalle_actividades or '---' }}</td>
+        </tr>
+        <tr>
+            <th>Resultado de Atención:</th>
+            <td><strong>{{ atencion.resultado or 'Pendiente' }}</strong></td>
+        </tr>
+        <tr>
+            <th>Observaciones:</th>
+            <td>{{ atencion.observaciones or 'Ninguna' }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">3. CONFORMIDAD DEL USUARIO Y TÉCNICO</div>
+    <table class="table" style="margin-bottom: 40px;">
+        <tr>
+            <th style="width: 50%; text-align: center; background-color: #e9ecef;">USUARIO SOLICITANTE</th>
+            <th style="width: 50%; text-align: center; background-color: #e9ecef;">TÉCNICO DE SOPORTE</th>
+        </tr>
+        <tr>
+            <td>
+                <strong>Nombre:</strong> {{ atencion.conf_nombre or '___________________________' }}<br><br>
+                <strong>Cargo:</strong> {{ atencion.conf_cargo or '___________________________' }}<br><br>
+                <strong>Fecha:</strong> {{ atencion.conf_fecha or '___________________________' }}
+            </td>
+            <td>
+                <strong>Nombre:</strong> {{ atencion.resp_nombre or '___________________________' }}<br><br>
+                <strong>Cargo:</strong> {{ atencion.resp_cargo or 'Soporte Informático TI' }}<br><br>
+                <strong>Fecha:</strong> {{ atencion.resp_fecha or atencion.fecha_fin or '___________________________' }}
+            </td>
+        </tr>
+    </table>
+
+    <div class="signatures">
+        <div class="sig-box">
+            <div class="sig-line">Firma del Usuario Solicitante</div>
+        </div>
+        <div class="sig-box" style="float: right;">
+            <div class="sig-line">Firma del Técnico de Soporte</div>
+        </div>
+    </div>
+
+</body>
+</html>

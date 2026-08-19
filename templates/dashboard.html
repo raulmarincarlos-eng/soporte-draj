@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(10px); } }
+    .hover-scale { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .hover-scale:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    .btn-glass { background: rgba(25, 135, 84, 0.1); border: 1px solid rgba(25, 135, 84, 0.2); transition: all 0.3s; }
+    .btn-glass:hover { background: rgba(25, 135, 84, 0.2); border-color: rgba(25, 135, 84, 0.3); transform: translateY(-2px); }
+    .table-hover tbody tr { transition: all 0.2s; cursor: pointer; }
+    .table-hover tbody tr:hover { background-color: #f8f9fa; transform: scale(1.005); box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-radius: 8px; }
+</style>
+
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-3 fade-in">
+        <div>
+            <h2 class="text-dark fw-bold mb-0"><i class="fas fa-chart-pie text-primary me-2"></i>Dashboard de Atenciones</h2>
+            <p class="text-muted mb-0">Historial y estadísticas de soporte informático</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('exportar_excel') }}" class="btn btn-outline-success btn-lg shadow-sm fw-bold rounded-pill hover-scale">
+                <i class="fas fa-file-excel me-2"></i>Exportar Excel
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 stats-card hover-lift">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success">
+                    <i class="fas fa-calendar-check fa-2x"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-success">{{ total_hoy }}</h3>
+                    <span class="text-muted small fw-bold text-uppercase tracking-wide">Hoy</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 stats-card hover-lift">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary">
+                    <i class="fas fa-calendar-alt fa-2x"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-primary">{{ total_mes }}</h3>
+                    <span class="text-muted small fw-bold text-uppercase tracking-wide">Este Mes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Gráfico Circular -->
+    <div class="col-md-3 mb-3">
+        <div class="card shadow-sm h-100 border-0 rounded-4 hover-scale">
+            <div class="card-body p-3 d-flex flex-column justify-content-center">
+                <h6 class="fw-bold text-center text-muted mb-2 small text-uppercase" style="letter-spacing: 1px;">Estado de Tickets</h6>
+                <div style="height: 110px; position: relative;">
+                    <canvas id="chartResultados"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Gráfico de Barras -->
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100 border-0 rounded-4 hover-scale">
+            <div class="card-body p-3 d-flex flex-column justify-content-center">
+                <h6 class="fw-bold text-center text-muted mb-2 small text-uppercase" style="letter-spacing: 1px;">Top Áreas</h6>
+                <div style="height: 110px; position: relative;">
+                    <canvas id="chartAreas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 fade-in" style="animation-delay: 0.1s;">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('dashboard') }}" class="mb-4">
+            <div class="input-group input-group-lg">
+                <span class="input-group-text bg-white text-muted border-end-0">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control border-start-0 ps-0" id="searchInput" name="search" placeholder="Buscar por código (ej. 317) o área usuaria..." value="{{ search }}">
+                <button class="btn btn-outline-secondary px-4" type="submit">Buscar</button>
+                {% if search %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-danger"><i class="fas fa-times"></i></a>
+                {% endif %}
+            </div>
+        </form>
+
+        <!-- Filtros Rápidos (Tabs) -->
+        <div class="d-flex justify-content-center gap-3 mb-4 border-bottom pb-3">
+            <button class="btn btn-outline-primary active px-4 rounded-pill fw-bold filter-btn" data-filter="all">Todos los Tickets</button>
+            <button class="btn btn-outline-info text-dark px-4 rounded-pill fw-bold filter-btn position-relative" data-filter="Pendiente">
+                Pendientes
+                {% if total_pendientes > 0 %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow border border-light">
+                    {{ total_pendientes }}
+                    <span class="visually-hidden">pendientes</span>
+                </span>
+                {% endif %}
+            </button>
+            <button class="btn btn-outline-success px-4 rounded-pill fw-bold filter-btn" data-filter="Atendido">Atendidos</button>
+            <button class="btn btn-outline-danger px-4 rounded-pill fw-bold filter-btn" data-filter="No atendido">Problemas</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="text-center">Código</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Área Usuaria</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Resultado</th>
+                        <th scope="col" class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in atenciones %}
+                    <tr>
+                        <td class="text-center fw-bold fs-5 text-primary">#{{ item.id }}</td>
+                        <td>{{ item.fecha_registro }}<br><small class="text-muted">{{ item.hora_registro }}</small></td>
+                        <td class="fw-medium">{{ item.area_usuaria }}</td>
+                        <td>
+                            {% if item.tipo_atencion == 'Incidencia' %}
+                                <span class="badge bg-danger rounded-pill px-3">{{ item.tipo_atencion }}</span>
+                            {% elif item.tipo_atencion == 'Requerimiento' %}
+                                <span class="badge bg-info text-dark rounded-pill px-3">{{ item.tipo_atencion }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary rounded-pill px-3">{{ item.tipo_atencion }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.resultado == 'Atendido' %}
+                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Atendido</span>
+                            {% elif item.resultado == 'Parcial' %}
+                                <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle me-1"></i>Parcial</span>
+                            {% elif item.resultado == 'Pendiente' %}
+                                <span class="badge bg-info text-dark"><i class="fas fa-clock me-1"></i>Pendiente</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>No atendido</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                {% if item.resultado == 'Pendiente' %}
+                                <a href="{{ url_for('editar', id_str=item.id) }}" class="btn btn-sm btn-success fw-bold shadow-sm hover-scale position-relative" title="Atender este ticket ahora">
+                                    <i class="fas fa-tools me-1"></i> Atender
+                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"><span class="visually-hidden">Nuevo</span></span>
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('editar', id_str=item.id) }}" class="btn btn-sm btn-outline-secondary hover-scale" title="Modificar Atención">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{{ url_for('detalle', id_str=item.id) }}" class="btn btn-sm btn-primary hover-scale" title="Ver/Imprimir PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <form action="{{ url_for('eliminar', id_str=item.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar la atención #{{ item.id }}? Esta acción no se puede deshacer.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger hover-scale" title="Eliminar">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3 text-light-gray"></i>
+                            <h5>No se encontraron registros</h5>
+                            <p>Intenta con otra búsqueda o crea un nuevo registro.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Buscar en la tabla
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    // Lógica combinada de búsqueda y filtrado
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    let currentFilter = 'all';
+
+    function applyFilters() {
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+        
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matchesSearch = text.includes(query);
+            
+            let matchesTab = true;
+            if(currentFilter !== 'all') {
+                const statusCell = row.querySelector('td:nth-child(5)');
+                if(statusCell) {
+                    matchesTab = statusCell.textContent.includes(currentFilter);
+                }
+            }
+            
+            row.style.display = (matchesSearch && matchesTab) ? '' : 'none';
+        });
+    }
+
+    if(searchInput) {
+        searchInput.addEventListener('keyup', applyFilters);
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.getAttribute('data-filter');
+            applyFilters();
+        });
+    });
+
+    // Datos para el gráfico circular
+    const resData = {
+        'Atendido': {{ resultados_dict.get('Atendido', 0) }},
+        'Pendiente': {{ resultados_dict.get('Pendiente', 0) }},
+        'Parcial': {{ resultados_dict.get('Parcial', 0) }},
+        'No atendido': {{ resultados_dict.get('No atendido', 0) }}
+    };
+    
+    new Chart(document.getElementById('chartResultados'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Atendido', 'Pendiente', 'Parcial', 'No atendido'],
+            datasets: [{
+                data: [resData['Atendido'], resData['Pendiente'], resData['Parcial'], resData['No atendido']],
+                backgroundColor: ['#198754', '#0dcaf0', '#ffc107', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 10, font: {size: 11} } }
+            }
+        }
+    });
+
+    // Datos para el gráfico de barras
+    const areasLabels = [
+        {% for row in top_areas_data %} "{{ row['_id'] }}"{% if not loop.last %},{% endif %} {% endfor %}
+    ];
+    const areasData = [
+        {% for row in top_areas_data %} {{ row['count'] }}{% if not loop.last %},{% endif %} {% endfor %}
+    ];
+
+    if(areasLabels.length > 0) {
+        new Chart(document.getElementById('chartAreas'), {
+            type: 'bar',
+            data: {
+                labels: areasLabels,
+                datasets: [{
+                    label: 'Atenciones',
+                    data: areasData,
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1, font: {size: 10} } },
+                    x: { ticks: { font: {size: 10}, maxRotation: 90, minRotation: 0, callback: function(val, index) { return this.getLabelForValue(val).length > 8 ? this.getLabelForValue(val).substring(0,8)+'...' : this.getLabelForValue(val); } } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
