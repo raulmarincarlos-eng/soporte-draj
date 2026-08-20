@@ -418,8 +418,18 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
         <div id="faq-buttons" class="d-none mt-2 pt-2 border-top" style="animation: fadeIn 0.5s;">
             <p class="text-muted small mb-1 fw-bold">Opciones Rápidas:</p>
             <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('internet')"><i class="fas fa-wifi me-1"></i> No tengo Internet</button>
-            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('tinta')"><i class="fas fa-magic me-1"></i> Falta Tinta o Tóner (Autocompletar)</button>
+            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('tinta')"><i class="fas fa-magic me-1"></i> Falta Tinta o Tóner</button>
             <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('pc')"><i class="fas fa-desktop me-1"></i> Mi PC no enciende</button>
+            <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill faq-btn text-start fw-bold shadow-sm" onclick="mostrarTracker()"><i class="fas fa-search me-1"></i> Rastrear mi ticket (In-Chat)</button>
+            
+            <!-- Buscador Integrado -->
+            <div id="tracker-form" class="d-none mt-2 p-2 bg-light rounded border border-primary" style="animation: fadeIn 0.3s;">
+                <label class="small fw-bold text-primary mb-1">Ingresa tu N° de Ticket:</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="tracker-input" class="form-control" placeholder="Ej: 240819-ABCDE" autocomplete="off">
+                    <button class="btn btn-primary fw-bold" onclick="rastrearTicket()"><i class="fas fa-satellite-dish"></i></button>
+                </div>
+            </div>
         </div>
     </div>
     <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar robot-breathing" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
@@ -571,6 +581,48 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
 
     function responderFAQ(tema) {
         hablarTexto(respuestasFAQ[tema], tema);
+    }
+
+    function mostrarTracker() {
+        playSFX('bloop');
+        const tf = document.getElementById('tracker-form');
+        if (tf.classList.contains('d-none')) {
+            tf.classList.remove('d-none');
+            hablarTexto("Por favor, ingresa tu número de ticket en la cajita que acaba de aparecer.");
+            document.getElementById('tracker-input').focus();
+        } else {
+            tf.classList.add('d-none');
+        }
+    }
+
+    function rastrearTicket() {
+        const input = document.getElementById('tracker-input');
+        const val = input.value.trim();
+        if (!val) {
+            hablarTexto("No has ingresado ningún código. Intenta de nuevo.");
+            return;
+        }
+        
+        hablarTexto("Déjame buscarlo en la base de datos...");
+        
+        fetch(`/api/ticket/${val}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    setTimeout(() => {
+                        hablarTexto(`Lo siento, no encontré ningún ticket con el código ${val}. Verifica que esté bien escrito.`);
+                    }, 2500);
+                } else {
+                    setTimeout(() => {
+                        hablarTexto(`¡Lo encontré! Tu ticket del área de <b>${data.area}</b> actualmente se encuentra en estado: <b>${data.estado}</b>.`);
+                    }, 2500);
+                }
+            })
+            .catch(err => {
+                setTimeout(() => {
+                    hablarTexto("Ups, hubo un problema de conexión al buscar tu ticket.");
+                }, 2500);
+            });
     }
 
     // INTELIGENCIA CONTEXTUAL

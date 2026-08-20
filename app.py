@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session, jsonify
 from werkzeug.security import check_password_hash
 from functools import wraps
 from database import init_db, get_db_connection
@@ -258,6 +258,18 @@ def consultar():
             error = f"No se encontró ningún ticket con el código {ticket_id}. Verifica e intenta nuevamente."
             
     return render_template('consulta.html', atencion=atencion, search_id=ticket_id, error=error)
+
+@app.route('/api/ticket/<ticket_id>', methods=['GET'])
+def api_ticket(ticket_id):
+    db = get_db_connection()
+    atencion = db.atenciones.find_one({"id": ticket_id.upper().strip()})
+    if atencion:
+        return jsonify({
+            "estado": atencion.get("resultado", "Pendiente"),
+            "fecha": atencion.get("fecha_registro", ""),
+            "area": atencion.get("area_usuaria", "")
+        })
+    return jsonify({"error": "No encontrado"}), 404
 
 @app.route('/editar/<id_str>', methods=('GET', 'POST'))
 @login_required
