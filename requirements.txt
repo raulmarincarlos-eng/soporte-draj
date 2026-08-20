@@ -7,3 +7,4 @@ gunicorn==21.2.0
 Werkzeug==3.0.1
 flaskwebgui==1.0.3
 xhtml2pdf==0.2.11
+certifi==2023.11.17
