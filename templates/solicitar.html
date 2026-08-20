@@ -55,9 +55,46 @@
         opacity: 0;
         transform: scale(0.5);
         transform-origin: bottom left;
+        transition: max-height 0.4s cubic-bezier(0, 1, 0.5, 1), padding 0.4s ease, opacity 0.3s;
+        max-height: 500px;
+        overflow: hidden;
+    }
+    .speech-bubble.collapsed {
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-bottom: 0;
+        opacity: 0;
+        border: none;
     }
     @keyframes popIn {
         to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* ANIMACION ESCRIBIENDO */
+    .typing-indicator {
+        display: none;
+        align-items: center;
+        padding: 5px 10px;
+        background: #e9ecef;
+        border-radius: 10px;
+        width: fit-content;
+        margin-bottom: 10px;
+    }
+    .typing-indicator span {
+        height: 6px;
+        width: 6px;
+        background: #198754;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 4px;
+        animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
     }
     
     /* ANIMACIONES DEL ROBOT */
@@ -360,13 +397,21 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
                     <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
                 </div>
             </h6>
-            <button id="btn-mute" class="btn btn-sm btn-link text-muted p-0 ms-2" onclick="toggleMute()" title="Silenciar/Activar Voz">
-                <i class="fas fa-volume-up"></i>
-            </button>
+            <div class="d-flex">
+                <button id="btn-mute" class="btn btn-sm btn-link text-muted p-0 ms-2" onclick="toggleMute()" title="Silenciar/Activar Voz">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button id="btn-collapse" class="btn btn-sm btn-link text-muted p-0 ms-3" onclick="collapseChat()" title="Minimizar">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
         </div>
         
         <div id="chat-history" class="chat-history mt-2 mb-2">
             <!-- Mensajes aparecerán aquí -->
+            <div id="typing-indicator" class="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
         </div>
         
         <!-- Botones FAQ -->
@@ -380,15 +425,49 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
     <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar robot-breathing" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
 </div>
 
-<!-- SCRIPT PARA EL ROBOT INTERACTIVO 2.0 -->
+<!-- SCRIPT PARA EL ROBOT INTERACTIVO 2.0 CON FLUIDEZ -->
 <script>
     const chatHistory = document.getElementById('chat-history');
     const soundWaves = document.getElementById('sound-waves');
     const faqButtons = document.getElementById('faq-buttons');
     const robotImg = document.getElementById('robot-img');
     const btnMute = document.getElementById('btn-mute');
+    const robotBubble = document.getElementById('robot-bubble');
+    const typingIndicator = document.getElementById('typing-indicator');
+    
     let isMuted = false;
     
+    // SFX Engine (Web Audio API) - Sin archivos externos
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function playSFX(type) {
+        if (isMuted) return;
+        if (!audioCtx) audioCtx = new AudioContext();
+        
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        if (type === 'pop') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'bloop') {
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.2);
+        }
+    }
+
     // Diccionario de respuestas FAQ
     const respuestasFAQ = {
         'internet': "Si no tienes Internet, revisa que el cable amarillo esté bien conectado. Si el problema persiste, llena el formulario eligiendo 'Red/Internet'.",
@@ -403,51 +482,55 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
 
     function appendMessage(mensaje) {
         const msgDiv = document.createElement('div');
-        msgDiv.className = 'mb-2 text-dark fw-medium bg-light rounded p-2 small border';
+        msgDiv.className = 'mb-2 text-dark fw-medium bg-light rounded p-2 small border fade-in';
         msgDiv.style.borderLeft = "4px solid #198754 !important";
         msgDiv.innerHTML = mensaje;
-        chatHistory.appendChild(msgDiv);
+        chatHistory.insertBefore(msgDiv, typingIndicator); // Insertar antes del indicador de tipeo
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
     function hablarTexto(mensaje, autoFillAction = null) {
-        appendMessage(mensaje);
+        // Mostrar indicador de "Escribiendo..."
+        typingIndicator.style.display = 'flex';
+        chatHistory.scrollTop = chatHistory.scrollHeight;
         
-        if (!isMuted && 'speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            soundWaves.style.display = 'inline-flex';
-            robotImg.classList.remove('robot-breathing');
-            robotImg.classList.add('robot-talking');
+        // Simular retraso humano (1 segundo)
+        setTimeout(() => {
+            typingIndicator.style.display = 'none';
+            playSFX('pop');
+            appendMessage(mensaje);
             
-            const textoLimpio = mensaje.replace(/<[^>]*>?/gm, ''); // Quitar tags HTML para leer
-            const utterance = new SpeechSynthesisUtterance(textoLimpio);
-            utterance.lang = 'es-MX';
-            utterance.pitch = 1.1;
-            utterance.rate = 1.0;
-            
-            if (vocesAmigables.length === 0) {
-                vocesAmigables = window.speechSynthesis.getVoices().filter(v => v.lang.includes('es'));
+            if (!isMuted && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                soundWaves.style.display = 'inline-flex';
+                robotImg.classList.remove('robot-breathing');
+                robotImg.classList.add('robot-talking');
+                
+                const textoLimpio = mensaje.replace(/<[^>]*>?/gm, ''); // Quitar tags HTML
+                const utterance = new SpeechSynthesisUtterance(textoLimpio);
+                utterance.lang = 'es-MX';
+                utterance.pitch = 1.1;
+                utterance.rate = 1.0;
+                
+                if (vocesAmigables.length === 0) vocesAmigables = window.speechSynthesis.getVoices().filter(v => v.lang.includes('es'));
+                const vozIdeal = vocesAmigables.find(v => v.name.includes('Google') || v.name.includes('Sabina') || v.name.includes('Mia') || v.name.includes('Paulina'));
+                if (vozIdeal) utterance.voice = vozIdeal;
+                
+                utterance.onend = function() { 
+                    soundWaves.style.display = 'none'; 
+                    robotImg.classList.remove('robot-talking');
+                    robotImg.classList.add('robot-breathing');
+                };
+                window.speechSynthesis.speak(utterance);
             }
             
-            const vozIdeal = vocesAmigables.find(v => v.name.includes('Google') || v.name.includes('Sabina') || v.name.includes('Mia') || v.name.includes('Paulina'));
-            if (vozIdeal) {
-                utterance.voice = vozIdeal;
+            if (autoFillAction === 'tinta') {
+                document.getElementById('tipo_atencion').value = 'Requerimiento';
+                document.getElementById('descripcion').value = 'Requerimiento de Tinta/Tóner. Modelo de la impresora: ';
+                document.getElementById('clasif_hardware').checked = true;
+                document.getElementById('descripcion').focus();
             }
-            
-            utterance.onend = function() { 
-                soundWaves.style.display = 'none'; 
-                robotImg.classList.remove('robot-talking');
-                robotImg.classList.add('robot-breathing');
-            };
-            window.speechSynthesis.speak(utterance);
-        }
-        
-        if (autoFillAction === 'tinta') {
-            document.getElementById('tipo_atencion').value = 'Requerimiento';
-            document.getElementById('descripcion').value = 'Requerimiento de Tinta/Tóner. Modelo de la impresora: ';
-            document.getElementById('clasif_hardware').checked = true;
-            document.getElementById('descripcion').focus();
-        }
+        }, 1000); // 1 sec delay
     }
 
     function toggleMute() {
@@ -460,19 +543,29 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
             robotImg.classList.add('robot-breathing');
         } else {
             btnMute.innerHTML = '<i class="fas fa-volume-up"></i>';
-            hablarTexto("Audio reactivado.");
+            playSFX('pop');
         }
     }
 
+    function collapseChat() {
+        playSFX('bloop');
+        robotBubble.classList.add('collapsed');
+    }
+
     function toggleFAQ() {
-        if (faqButtons.classList.contains('d-none')) {
-            faqButtons.classList.remove('d-none');
-            // Solo saludar si el chat está vacío
-            if (chatHistory.children.length === 0) {
-                hablarTexto("¡Hola! Soy Tech-E. Elige una opción o completa el formulario.");
+        if (robotBubble.classList.contains('collapsed')) {
+            playSFX('bloop');
+            robotBubble.classList.remove('collapsed');
+            if (faqButtons.classList.contains('d-none')) {
+                faqButtons.classList.remove('d-none');
             }
         } else {
-            faqButtons.classList.add('d-none');
+            if (faqButtons.classList.contains('d-none')) {
+                playSFX('bloop');
+                faqButtons.classList.remove('d-none');
+            } else {
+                collapseChat();
+            }
         }
     }
 
@@ -487,14 +580,12 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
         'descripcion': 'Sé lo más detallado posible en la descripción del problema para llevar las herramientas correctas.'
     };
     
-    // Variables para no repetir mensajes contextuales
     const mensajesVistos = new Set();
-
     for (const [id, msg] of Object.entries(contextRules)) {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('focus', () => {
-                if (!faqButtons.classList.contains('d-none') && !mensajesVistos.has(id)) {
+                if (!robotBubble.classList.contains('collapsed') && !mensajesVistos.has(id)) {
                     hablarTexto("💡 Tip: " + msg);
                     mensajesVistos.add(id);
                 }
@@ -502,23 +593,23 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
         }
     }
 
-    // Interceptar envío para animación feliz
     document.getElementById('form-solicitud').addEventListener('submit', function() {
         robotImg.classList.remove('robot-breathing', 'robot-talking');
         robotImg.classList.add('robot-happy');
-        if (!isMuted && 'speechSynthesis' in window) {
-            // Un mensaje rápido de éxito no se guarda en el historial porque la pág recargará
-            let utter = new SpeechSynthesisUtterance("¡Solicitud enviada con éxito!");
-            window.speechSynthesis.speak(utter);
-        }
+        playSFX('pop');
     });
 
     document.addEventListener("DOMContentLoaded", function() {
         setTimeout(() => {
-            if (chatHistory.children.length === 0) {
-                hablarTexto("¡Hola! Soy Tech-E. Toca mi imagen para ver cómo puedo ayudarte.");
-            }
-        }, 1500);
+            // Saludo basado en la hora del día
+            const hora = new Date().getHours();
+            let saludo = "¡Hola!";
+            if (hora < 12) saludo = "¡Buenos días!";
+            else if (hora < 19) saludo = "¡Buenas tardes!";
+            else saludo = "¡Buenas noches!";
+            
+            hablarTexto(`${saludo} Soy Tech-E. Toca mi imagen para ver mis opciones o minimízame si prefieres silencio.`);
+        }, 1000);
     });
 </script>
 
