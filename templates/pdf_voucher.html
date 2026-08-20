@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0a6b29;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            color: #0a6b29;
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 12px;
+        }
+        .ticket-box {
+            border: 2px dashed #0a6b29;
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: #f8fff9;
+            text-align: center;
+        }
+        .ticket-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0a6b29;
+            margin: 10px 0;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .details-table th, .details-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .details-table th {
+            width: 35%;
+            color: #0a6b29;
+        }
+        .qr-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .qr-section p {
+            font-weight: bold;
+            color: #555;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #888;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DIRECCIÓN REGIONAL DE AGRICULTURA JUNÍN</h1>
+        <p>OFICINA DE TECNOLOGÍAS DE LA INFORMACIÓN - SOPORTE TÉCNICO</p>
+    </div>
+
+    <div class="ticket-box">
+        <p style="margin:0; font-size: 16px;">VOUCHER DE ATENCIÓN N°</p>
+        <div class="ticket-number">{{ atencion.id }}</div>
+        <p style="margin:0; font-size: 14px; color:#555;">Presente este código para consultar el estado de su solicitud</p>
+    </div>
+
+    <table class="details-table">
+        <tr>
+            <th>Fecha de Registro:</th>
+            <td>{{ atencion.fecha_registro }} a las {{ atencion.hora_registro }}</td>
+        </tr>
+        <tr>
+            <th>Área Usuaria:</th>
+            <td>{{ atencion.area_usuaria }}</td>
+        </tr>
+        <tr>
+            <th>Solicitante:</th>
+            <td>{{ atencion.conf_nombre }}</td>
+        </tr>
+        <tr>
+            <th>Descripción del Problema:</th>
+            <td>{{ atencion.descripcion }}</td>
+        </tr>
+        <tr>
+            <th>Estado Actual:</th>
+            <td><strong>{{ atencion.resultado }}</strong></td>
+        </tr>
+    </table>
+
+    <div class="qr-section">
+        <p>Escanee para rastrear su ticket en tiempo real:</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://soporte-draj.onrender.com/consultar?ticket_id={{ atencion.id }}" width="150" height="150" alt="QR Code">
+    </div>
+
+    <div id="footer_content" class="footer">
+        Generado automáticamente por el Sistema de Soporte TI DRAJ - {{ atencion.fecha_registro }}<br>
+        Documento interno referencial.
+    </div>
+</body>
+</html>

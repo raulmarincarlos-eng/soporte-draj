@@ -475,5 +475,27 @@ def exportar_pdf(id_str):
         flash('Error al generar el PDF', 'danger')
         return redirect(url_for('dashboard'))
 
+@app.route('/voucher_pdf/<id_str>')
+def voucher_pdf(id_str):
+    db = get_db_connection()
+    atencion = db.atenciones.find_one({"id": id_str})
+    if not atencion and id_str.isdigit():
+        atencion = db.atenciones.find_one({"id": int(id_str)})
+        
+    if not atencion:
+        flash('Ticket no encontrado', 'danger')
+        return redirect(url_for('solicitar'))
+        
+    html = render_template('pdf_voucher.html', atencion=atencion)
+    result = io.BytesIO()
+    pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
+    
+    if not pdf.err:
+        result.seek(0)
+        return send_file(result, download_name=f'Ticket_Soporte_{atencion["id"]}.pdf', as_attachment=True, mimetype='application/pdf')
+    else:
+        flash('Error al generar el PDF del Voucher', 'danger')
+        return redirect(url_for('consultar', ticket_id=id_str))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

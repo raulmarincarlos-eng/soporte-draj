@@ -312,86 +312,90 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
 });
 </script>
 
-<!-- WIDGET DEL ROBOT FIJO (Esquina Inferior Izquierda) -->
-<div id="robot-widget" class="d-none d-md-flex">
-    <div class="speech-bubble">
+<!-- WIDGET DEL ROBOT FIJO (Interactivo) -->
+<div id="robot-widget">
+    <div class="speech-bubble" id="robot-bubble">
         <h6 class="fw-bold text-success mb-1 d-flex align-items-center">
             <i class="fas fa-robot me-2"></i>Tech-E dice:
             <div class="sound-waves" id="sound-waves">
                 <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
             </div>
         </h6>
-        <p id="robot-text" class="mb-0 text-dark fw-medium" style="font-size: 0.9rem; line-height: 1.4;"></p>
+        <p id="robot-text" class="mb-2 text-dark fw-medium" style="font-size: 0.9rem; line-height: 1.4;"></p>
+        
+        <!-- Botones FAQ -->
+        <div id="faq-buttons" class="d-none mt-2" style="animation: fadeIn 0.5s;">
+            <p class="text-muted small mb-1 fw-bold">Preguntas Frecuentes:</p>
+            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('internet')"><i class="fas fa-wifi me-1"></i> No tengo Internet</button>
+            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('tinta')"><i class="fas fa-print me-1"></i> Falta Tinta o Tóner</button>
+            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('pc')"><i class="fas fa-desktop me-1"></i> Mi PC no enciende</button>
+        </div>
     </div>
-    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar" id="robot-img">
+    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
 </div>
 
-<!-- SCRIPT PARA EL ROBOT -->
+<!-- SCRIPT PARA EL ROBOT INTERACTIVO -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const textToType = "¡Hola! Bienvenido al Soporte TI. Haz clic en el formulario para empezar, te ayudaremos pronto.";
     const typingElement = document.getElementById('robot-text');
     const soundWaves = document.getElementById('sound-waves');
-    let i = 0;
+    const faqButtons = document.getElementById('faq-buttons');
     
-    // Efecto máquina de escribir
-    function typeWriter() {
-        if (i < textToType.length) {
-            typingElement.innerHTML += textToType.charAt(i);
-            i++;
-            setTimeout(typeWriter, 30);
-        }
-    }
-    setTimeout(typeWriter, 800); // Iniciar texto un poco después
+    // Diccionario de respuestas FAQ
+    const respuestasFAQ = {
+        'internet': "Si no tienes Internet, primero revisa que el cable de red amarillo esté bien conectado a tu PC. Si el problema persiste, crea un ticket eligiendo la clasificación 'Red/Internet'.",
+        'tinta': "Para solicitar tinta o tóner, debes crear el ticket con el 'Tipo de Atención' como 'Requerimiento' y colocar el modelo exacto de tu impresora en la descripción.",
+        'pc': "Asegúrate de que el estabilizador esté encendido y enchufado firmemente. Si la luz no prende, puede ser una falla eléctrica. Solicita soporte aquí mismo."
+    };
 
-    // Sistema de Voz Interactivo por Hover
-    const robotWidget = document.getElementById('robot-widget');
-    let interacciones = 0;
-    
-    const frasesAdicionales = [
-        "Estamos a su entera disposición.",
-        "Por favor, detalle su problema para brindarle una solución más rápida.",
-        "No olvide anotar el número de ticket generado para consultar su estado luego.",
-        "El equipo de Informática está procesando las solicitudes, pronto le ayudaremos."
-    ];
-
-    function hablar() {
+    function hablarTexto(mensaje, typeWriterEffect = false) {
         if ('speechSynthesis' in window) {
-            // Cancelamos audios anteriores por si pasa el mouse repetidamente
             window.speechSynthesis.cancel();
-            
             soundWaves.style.display = 'inline-flex';
-            
-            let mensaje = "";
-            if (interacciones === 0) {
-                mensaje = "Hola. Bienvenido al Soporte de Tecnologías. Registra tu solicitud y la atenderemos lo más pronto posible.";
-            } else {
-                const indexRandom = Math.floor(Math.random() * frasesAdicionales.length);
-                mensaje = frasesAdicionales[indexRandom];
-            }
             
             const utterance = new SpeechSynthesisUtterance(mensaje);
             utterance.lang = 'es-ES';
-            utterance.pitch = 1.3; // Tono robótico
+            utterance.pitch = 1.3;
             utterance.rate = 1.05;
             
-            utterance.onend = function() {
-                soundWaves.style.display = 'none';
-            };
-            
+            utterance.onend = function() { soundWaves.style.display = 'none'; };
             window.speechSynthesis.speak(utterance);
-            interacciones++;
+        }
+        
+        if (typeWriterEffect) {
+            typingElement.innerHTML = "";
+            let i = 0;
+            function typeWriter() {
+                if (i < mensaje.length) {
+                    typingElement.innerHTML += mensaje.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 25);
+                }
+            }
+            typeWriter();
+        } else {
+            typingElement.innerHTML = mensaje;
         }
     }
 
-    // Activar cuando pasa el ratón (hover) sobre el widget
-    robotWidget.addEventListener('mouseenter', hablar);
-    
-    // Y para celulares, activarlo al tocarlo
-    robotWidget.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Evitar comportamientos por defecto
-        hablar();
-    });
+    function toggleFAQ() {
+        if (faqButtons.classList.contains('d-none')) {
+            faqButtons.classList.remove('d-none');
+            hablarTexto("¿En qué te puedo ayudar hoy? Elige una opción abajo o completa el formulario.", true);
+        } else {
+            faqButtons.classList.add('d-none');
+            hablarTexto("Si necesitas ayuda nuevamente, ¡solo haz clic en mí!", true);
+        }
+    }
+
+    function responderFAQ(tema) {
+        const respuesta = respuestasFAQ[tema];
+        hablarTexto(respuesta, true);
+    }
+
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(() => {
+        hablarTexto("¡Hola! Bienvenido al Soporte TI. Toca mi imagen si tienes dudas rápidas.", true);
+    }, 1000);
 });
 </script>
 

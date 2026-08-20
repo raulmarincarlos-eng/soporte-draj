@@ -135,6 +135,12 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="text-center mb-5">
+                        <a href="{{ url_for('voucher_pdf', id_str=atencion.id) }}" class="btn btn-outline-success btn-lg rounded-pill px-5 fw-bold shadow-sm hover-scale">
+                            <i class="fas fa-file-pdf me-2"></i>Descargar Voucher PDF
+                        </a>
+                    </div>
 
                     <!-- Timeline -->
                     <h5 class="fw-bold text-secondary mb-4"><i class="fas fa-stream me-2"></i>Línea de Tiempo del Ticket</h5>
