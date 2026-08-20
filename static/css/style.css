@@ -189,3 +189,47 @@ body {
         print-color-adjust: exact;
     }
 }
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+    
+    .navbar-glass {
+        padding: 8px 15px !important;
+        border-radius: 20px;
+    }
+    
+    /* Darken navbar dropdown on mobile so it's readable */
+    .navbar-collapse {
+        background: rgba(20, 108, 67, 0.98);
+        padding: 15px;
+        border-radius: 15px;
+        margin-top: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .nav-link-custom {
+        margin: 5px 0 !important;
+        text-align: center;
+    }
+    
+    .btn-admin-glow {
+        display: block;
+        text-align: center;
+        margin: 10px 0 0 0 !important;
+    }
+    
+    .hero-header-draj {
+        padding: 2rem !important;
+    }
+    
+    .display-6 {
+        font-size: 1.8rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 15px;
+    }
+}
