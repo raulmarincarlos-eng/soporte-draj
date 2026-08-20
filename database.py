@@ -27,7 +27,7 @@ def get_db_connection():
     Retorna la conexión a la base de datos de MongoDB.
     """
     import certifi
-    client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+    client = pymongo.MongoClient(MONGO_URI, tls=True, tlsAllowInvalidCertificates=True, tlsCAFile=certifi.where())
     return client[DB_NAME]
 
 def init_db():
