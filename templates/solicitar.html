@@ -34,13 +34,15 @@
         animation: float-avatar 3s ease-in-out infinite;
         background: #fff;
     }
-    @keyframes float-avatar {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0px); }
+    @keyframes    #robot-widget {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        display: flex;
+        align-items: flex-end;
+        z-index: 1000;
+        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
     }
-    
-    /* BURBUJA DE CHAT ESTILO GAMER */
     .speech-bubble {
         background: #fff;
         border-radius: 20px 20px 20px 0;
@@ -56,6 +58,42 @@
     }
     @keyframes popIn {
         to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* ANIMACIONES DEL ROBOT */
+    .robot-breathing {
+        animation: breathing 4s ease-in-out infinite;
+    }
+    .robot-talking {
+        animation: talking 0.3s ease-in-out infinite alternate, glow 1.5s ease-in-out infinite alternate;
+    }
+    .robot-happy {
+        animation: happyJump 0.6s ease-in-out 2;
+    }
+    @keyframes breathing {
+        0% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-5px) scale(1.02); }
+        100% { transform: translateY(0) scale(1); }
+    }
+    @keyframes talking {
+        from { transform: scale(1); }
+        to { transform: scale(1.05) skewX(2deg); }
+    }
+    @keyframes glow {
+        from { box-shadow: 0 0 10px rgba(25,135,84,0.5); }
+        to { box-shadow: 0 0 25px rgba(25,135,84,1); }
+    }
+    @keyframes happyJump {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+        100% { transform: translateY(0); }
+    }
+    .chat-history {
+        max-height: 150px;
+        overflow-y: auto;
+        padding-right: 5px;
+        scrollbar-width: thin;
+        scrollbar-color: #198754 transparent;
     }
 
     /* ROBOT MOBILE RESPONSIVE */
@@ -312,108 +350,176 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
 });
 </script>
 
-<!-- WIDGET DEL ROBOT FIJO (Interactivo) -->
+<!-- WIDGET DEL ROBOT FIJO (Interactivo 2.0) -->
 <div id="robot-widget">
     <div class="speech-bubble" id="robot-bubble">
-        <h6 class="fw-bold text-success mb-1 d-flex align-items-center">
-            <i class="fas fa-robot me-2"></i>Tech-E dice:
-            <div class="sound-waves" id="sound-waves">
-                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            </div>
-        </h6>
-        <p id="robot-text" class="mb-2 text-dark fw-medium" style="font-size: 0.9rem; line-height: 1.4;"></p>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <h6 class="fw-bold text-success mb-0 d-flex align-items-center">
+                <i class="fas fa-robot me-2"></i>Tech-E
+                <div class="sound-waves ms-2" id="sound-waves">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                </div>
+            </h6>
+            <button id="btn-mute" class="btn btn-sm btn-link text-muted p-0 ms-2" onclick="toggleMute()" title="Silenciar/Activar Voz">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+        
+        <div id="chat-history" class="chat-history mt-2 mb-2">
+            <!-- Mensajes aparecerán aquí -->
+        </div>
         
         <!-- Botones FAQ -->
-        <div id="faq-buttons" class="d-none mt-2" style="animation: fadeIn 0.5s;">
-            <p class="text-muted small mb-1 fw-bold">Preguntas Frecuentes:</p>
+        <div id="faq-buttons" class="d-none mt-2 pt-2 border-top" style="animation: fadeIn 0.5s;">
+            <p class="text-muted small mb-1 fw-bold">Opciones Rápidas:</p>
             <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('internet')"><i class="fas fa-wifi me-1"></i> No tengo Internet</button>
-            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('tinta')"><i class="fas fa-print me-1"></i> Falta Tinta o Tóner</button>
+            <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('tinta')"><i class="fas fa-magic me-1"></i> Falta Tinta o Tóner (Autocompletar)</button>
             <button class="btn btn-sm btn-outline-success w-100 mb-1 rounded-pill faq-btn text-start fw-bold" onclick="responderFAQ('pc')"><i class="fas fa-desktop me-1"></i> Mi PC no enciende</button>
         </div>
     </div>
-    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
+    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar robot-breathing" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
 </div>
 
-<!-- SCRIPT PARA EL ROBOT INTERACTIVO -->
+<!-- SCRIPT PARA EL ROBOT INTERACTIVO 2.0 -->
 <script>
-    const typingElement = document.getElementById('robot-text');
+    const chatHistory = document.getElementById('chat-history');
     const soundWaves = document.getElementById('sound-waves');
     const faqButtons = document.getElementById('faq-buttons');
+    const robotImg = document.getElementById('robot-img');
+    const btnMute = document.getElementById('btn-mute');
+    let isMuted = false;
     
     // Diccionario de respuestas FAQ
     const respuestasFAQ = {
-        'internet': "Si no tienes Internet, primero revisa que el cable de red amarillo esté bien conectado a tu PC. Si el problema persiste, crea un ticket eligiendo la clasificación 'Red/Internet'.",
-        'tinta': "Para solicitar tinta o tóner, debes crear el ticket con el 'Tipo de Atención' como 'Requerimiento' y colocar el modelo exacto de tu impresora en la descripción.",
-        'pc': "Asegúrate de que el estabilizador esté encendido y enchufado firmemente. Si la luz no prende, puede ser una falla eléctrica. Solicita soporte aquí mismo."
+        'internet': "Si no tienes Internet, revisa que el cable amarillo esté bien conectado. Si el problema persiste, llena el formulario eligiendo 'Red/Internet'.",
+        'tinta': "¡Magia activada! He rellenado el formulario por ti. Recuerda poner el <b>modelo de tu impresora</b> en la descripción.",
+        'pc': "Asegúrate de que el estabilizador esté encendido y enchufado. Si la luz no prende, solicita soporte eligiendo 'Hardware'."
     };
 
-    // Intentar buscar una voz más amigable
     let vocesAmigables = [];
     window.speechSynthesis.onvoiceschanged = function() {
         vocesAmigables = window.speechSynthesis.getVoices().filter(voice => voice.lang.includes('es'));
     };
 
-    function hablarTexto(mensaje, typeWriterEffect = false) {
-        if ('speechSynthesis' in window) {
+    function appendMessage(mensaje) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'mb-2 text-dark fw-medium bg-light rounded p-2 small border';
+        msgDiv.style.borderLeft = "4px solid #198754 !important";
+        msgDiv.innerHTML = mensaje;
+        chatHistory.appendChild(msgDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function hablarTexto(mensaje, autoFillAction = null) {
+        appendMessage(mensaje);
+        
+        if (!isMuted && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             soundWaves.style.display = 'inline-flex';
+            robotImg.classList.remove('robot-breathing');
+            robotImg.classList.add('robot-talking');
             
-            const utterance = new SpeechSynthesisUtterance(mensaje);
-            utterance.lang = 'es-MX'; // Español latino suele sonar más natural
-            utterance.pitch = 1.1; // Tono más cálido y humano
-            utterance.rate = 1.0; // Velocidad de habla normal
+            const textoLimpio = mensaje.replace(/<[^>]*>?/gm, ''); // Quitar tags HTML para leer
+            const utterance = new SpeechSynthesisUtterance(textoLimpio);
+            utterance.lang = 'es-MX';
+            utterance.pitch = 1.1;
+            utterance.rate = 1.0;
             
-            // Intentar usar una voz de Google o Microsoft específica que suene menos "seca"
             if (vocesAmigables.length === 0) {
                 vocesAmigables = window.speechSynthesis.getVoices().filter(v => v.lang.includes('es'));
             }
             
-            // Buscar voces que suelan ser de alta calidad
             const vozIdeal = vocesAmigables.find(v => v.name.includes('Google') || v.name.includes('Sabina') || v.name.includes('Mia') || v.name.includes('Paulina'));
             if (vozIdeal) {
                 utterance.voice = vozIdeal;
             }
             
-            utterance.onend = function() { soundWaves.style.display = 'none'; };
+            utterance.onend = function() { 
+                soundWaves.style.display = 'none'; 
+                robotImg.classList.remove('robot-talking');
+                robotImg.classList.add('robot-breathing');
+            };
             window.speechSynthesis.speak(utterance);
         }
         
-        if (typeWriterEffect) {
-            typingElement.innerHTML = "";
-            let i = 0;
-            function typeWriter() {
-                if (i < mensaje.length) {
-                    typingElement.innerHTML += mensaje.charAt(i);
-                    i++;
-                    setTimeout(typeWriter, 25);
-                }
-            }
-            typeWriter();
+        if (autoFillAction === 'tinta') {
+            document.getElementById('tipo_atencion').value = 'Requerimiento';
+            document.getElementById('descripcion').value = 'Requerimiento de Tinta/Tóner. Modelo de la impresora: ';
+            document.getElementById('clasif_hardware').checked = true;
+            document.getElementById('descripcion').focus();
+        }
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        if (isMuted) {
+            window.speechSynthesis.cancel();
+            btnMute.innerHTML = '<i class="fas fa-volume-mute text-danger"></i>';
+            soundWaves.style.display = 'none';
+            robotImg.classList.remove('robot-talking');
+            robotImg.classList.add('robot-breathing');
         } else {
-            typingElement.innerHTML = mensaje;
+            btnMute.innerHTML = '<i class="fas fa-volume-up"></i>';
+            hablarTexto("Audio reactivado.");
         }
     }
 
     function toggleFAQ() {
         if (faqButtons.classList.contains('d-none')) {
             faqButtons.classList.remove('d-none');
-            hablarTexto("¿En qué te puedo ayudar hoy? Elige una opción abajo o completa el formulario.", true);
+            // Solo saludar si el chat está vacío
+            if (chatHistory.children.length === 0) {
+                hablarTexto("¡Hola! Soy Tech-E. Elige una opción o completa el formulario.");
+            }
         } else {
             faqButtons.classList.add('d-none');
-            hablarTexto("Si necesitas ayuda nuevamente, ¡solo haz clic en mí!", true);
         }
     }
 
     function responderFAQ(tema) {
-        const respuesta = respuestasFAQ[tema];
-        hablarTexto(respuesta, true);
+        hablarTexto(respuestasFAQ[tema], tema);
     }
 
-document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(() => {
-        hablarTexto("¡Hola! Bienvenido al Soporte TI. Toca mi imagen si tienes dudas rápidas.", true);
-    }, 1000);
-});
+    // INTELIGENCIA CONTEXTUAL
+    const contextRules = {
+        'nombre_solicitante': 'Escribe tu nombre completo para saber a quién dirigirnos.',
+        'direccion': 'Selecciona la Dirección o Agencia exacta donde te encuentras.',
+        'descripcion': 'Sé lo más detallado posible en la descripción del problema para llevar las herramientas correctas.'
+    };
+    
+    // Variables para no repetir mensajes contextuales
+    const mensajesVistos = new Set();
+
+    for (const [id, msg] of Object.entries(contextRules)) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('focus', () => {
+                if (!faqButtons.classList.contains('d-none') && !mensajesVistos.has(id)) {
+                    hablarTexto("💡 Tip: " + msg);
+                    mensajesVistos.add(id);
+                }
+            });
+        }
+    }
+
+    // Interceptar envío para animación feliz
+    document.getElementById('form-solicitud').addEventListener('submit', function() {
+        robotImg.classList.remove('robot-breathing', 'robot-talking');
+        robotImg.classList.add('robot-happy');
+        if (!isMuted && 'speechSynthesis' in window) {
+            // Un mensaje rápido de éxito no se guarda en el historial porque la pág recargará
+            let utter = new SpeechSynthesisUtterance("¡Solicitud enviada con éxito!");
+            window.speechSynthesis.speak(utter);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(() => {
+            if (chatHistory.children.length === 0) {
+                hablarTexto("¡Hola! Soy Tech-E. Toca mi imagen para ver cómo puedo ayudarte.");
+            }
+        }, 1500);
+    });
 </script>
 
 <script>
