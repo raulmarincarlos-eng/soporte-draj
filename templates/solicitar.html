@@ -24,16 +24,22 @@
         cursor: pointer;
     }
     
-    /* AVATAR CIRCULAR */
+    /* AVATAR 3D DEL ROBOT */
     .robot-avatar {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        object-fit: cover;
-        border: 5px solid #fff;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        animation: float-avatar 3s ease-in-out infinite;
-        background: #fff;
+        background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(240,248,245,1) 100%);
+        box-shadow: 0 15px 35px rgba(25, 135, 84, 0.4), 0 0 20px rgba(25, 135, 84, 0.2);
+        animation: float-avatar 4s ease-in-out infinite, pulse-glow 3s infinite alternate;
+        cursor: pointer;
+        display: block;
+        overflow: hidden;
+        border: 4px solid #fff;
+    }
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 15px 35px rgba(25, 135, 84, 0.4), 0 0 20px rgba(25, 135, 84, 0.2); }
+        100% { box-shadow: 0 15px 35px rgba(25, 135, 84, 0.7), 0 0 40px rgba(25, 135, 84, 0.5); }
     }
     @keyframes float-avatar {
         0%, 100% { transform: translateY(0); }
@@ -428,7 +434,15 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
             </div>
         </div>
     </div>
-    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar robot-breathing" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.5/build/spline-viewer.js"></script>
+    <div id="robot-img" class="robot-avatar robot-breathing" onclick="toggleFAQ()">
+        <spline-viewer 
+            url="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode" 
+            events-target="global"
+            loading-anim-type="none"
+            style="width: 100%; height: 100%; display: block; border-radius: 50%;">
+        </spline-viewer>
+    </div>
 </div>
 
 <!-- SCRIPT PARA EL ROBOT INTERACTIVO 2.0 CON FLUIDEZ -->
