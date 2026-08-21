@@ -334,6 +334,10 @@
             <label class="form-label">Observaciones adicionales:</label>
             <input type="text" class="form-control soft-input" name="observaciones" value="{{ atencion.observaciones if atencion else '' }}" placeholder="Opcional">
         </div>
+        <div class="mb-3 mt-3">
+                    <label class="form-label">Dirección IP (del Equipo Atendido):</label>
+                    <input type="text" class="form-control soft-input font-monospace border-primary" name="ip_maquina" placeholder="192.168.x.x" value="{{ atencion.ip_maquina if atencion else '' }}">
+                </div>
     </div>
 
     <!-- VII. CONFORMIDAD Y RESPONSABLE -->
@@ -343,10 +347,6 @@
                 <div class="island-header">
                     <div class="island-number">VII</div>
                     <h5 class="island-title">CONFORMIDAD DEL USUARIO</h5>
-                </div>
-                <div class="mb-3 mt-3">
-                    <label class="form-label">Dirección IP (del Equipo Atendido):</label>
-                    <input type="text" class="form-control soft-input font-monospace border-primary" name="ip_maquina" placeholder="192.168.x.x" value="{{ atencion.ip_maquina if atencion else '' }}">
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-danger"><i class="fas fa-file-signature me-1"></i>Firma Física (Auditoría):</label>
