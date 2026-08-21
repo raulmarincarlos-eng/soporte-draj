@@ -238,7 +238,9 @@
     });
     
     // Generar PDF
-    document.getElementById('btnExportPDF').addEventListener('click', function() {
+    const btnPdf = document.getElementById('btnExportPDF');
+    if (btnPdf) {
+        btnPdf.addEventListener('click', function() {
         const element = document.querySelector('.row.mb-4'); // Stats + Charts
         const opt = {
             margin:       0.5,
@@ -248,7 +250,8 @@
             jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
         };
         html2pdf().set(opt).from(element).save();
-    });
+        });
+    }
 
 document.addEventListener("DOMContentLoaded", function() {
         // Export to Excel with dates
