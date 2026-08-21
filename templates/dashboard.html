@@ -195,6 +195,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+        // Export to Excel with dates
+    const btnExportExcel = document.getElementById('btnExportExcel');
+    if(btnExportExcel) {
+        btnExportExcel.addEventListener('click', function(e) {
+            e.preventDefault();
+            const dateStart = document.getElementById('dateStart').value;
+            const dateEnd = document.getElementById('dateEnd').value;
+            let url = "{{ url_for('exportar_excel') }}";
+            if(dateStart || dateEnd) {
+                url += `?inicio=${dateStart}&fin=${dateEnd}`;
+            }
+            window.location.href = url;
+        });
+    }
     // Buscar en la tabla
     const searchInput = document.getElementById('searchInput');
     const tableRows = document.querySelectorAll('tbody tr');
