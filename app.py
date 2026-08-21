@@ -401,8 +401,12 @@ def exportar_excel():
         'resp_hora': 'Hora Cierre',
         'ip_maquina': 'IP Máquina'
     }
-    nombres_columnas_existentes = {k: v for k, v in nombres_columnas.items() if k in df.columns}
-    df.rename(columns=nombres_columnas_existentes, inplace=True)
+    # Filtrar solo las columnas que queremos en el Excel
+    columnas_deseadas = [k for k in nombres_columnas.keys() if k in df.columns]
+    df = df[columnas_deseadas]
+    
+    nombres_columnas_existentes = {k: v for k in columnas_deseadas for k, v in nombres_columnas.items() if k in df.columns}
+    df.rename(columns=nombres_columnas, inplace=True)
     
     for col in ['Software', 'Hardware', 'Red/Internet', 'Accesos', 'Biométrico', 'Otros (Clasif)']:
         if col in df.columns:

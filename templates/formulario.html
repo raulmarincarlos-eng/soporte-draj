@@ -482,7 +482,30 @@
         }
     }
 
+
+    // Función para auto-llenar fecha y hora actual al seleccionar un estado de finalización
+    function autoFillClosingTime() {
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0];
+        const timeString = today.toTimeString().split(':')[0] + ':' + today.toTimeString().split(':')[1];
+        
+        const respFecha = document.getElementById('resp_fecha');
+        if(respFecha) respFecha.value = dateString;
+        
+        const respHora = document.getElementById('resp_hora');
+        if(respHora) respHora.value = timeString;
+    }
+    
     document.addEventListener("DOMContentLoaded", function() {
+        // Añadir el listener a los radios de resultado
+        const radioBtns = document.querySelectorAll('input[name="resultado"]');
+        radioBtns.forEach(btn => {
+            btn.addEventListener('change', function() {
+                if(this.value === 'Atendido' || this.value === 'Parcial') {
+                    autoFillClosingTime();
+                }
+            });
+        });
         initAreas();
         
         const today = new Date();
@@ -503,6 +526,9 @@
         
         const respFecha = document.getElementById('resp_fecha');
         if(respFecha && !respFecha.value) respFecha.value = dateString;
+        
+        const respHora = document.getElementById('resp_hora');
+        if(respHora && !respHora.value) respHora.value = timeString;
     });
 </script>
 {% endblock %}
