@@ -115,6 +115,36 @@ def dashboard():
     current_month = datetime.now().strftime('%Y-%m')
     total_mes = db.atenciones.count_documents({"fecha_registro": {"$regex": f"^{current_month}"}})
     
+    # SLA y KPI: Tiempo de Resolución Promedio
+    total_dias = 0
+    atendidos_count = 0
+    now = datetime.now()
+    
+    for a in atenciones:
+        # Calcular SLA para pendientes
+        if a.get('resultado') == 'Pendiente':
+            fecha_reg = a.get('fecha_registro')
+            if fecha_reg:
+                try:
+                    fecha_obj = datetime.strptime(fecha_reg, '%Y-%m-%d')
+                    dias_retraso = (now - fecha_obj).days
+                    a['dias_retraso'] = dias_retraso
+                except:
+                    a['dias_retraso'] = 0
+        
+        # Calcular KPI de tiempo promedio
+        if a.get('resultado') in ['Atendido', 'Parcial'] and a.get('fecha_cierre'):
+            try:
+                f_ini = datetime.strptime(a.get('fecha_registro'), '%Y-%m-%d')
+                f_fin = datetime.strptime(a.get('fecha_cierre'), '%Y-%m-%d')
+                dias = (f_fin - f_ini).days
+                total_dias += dias
+                atendidos_count += 1
+            except:
+                pass
+                
+    tiempo_promedio = round(total_dias / atendidos_count, 1) if atendidos_count > 0 else 0
+    
     resultados_data = db.atenciones.aggregate([
         {"$group": {"_id": "$resultado", "count": {"$sum": 1}}}
     ])
@@ -131,7 +161,8 @@ def dashboard():
     return render_template('dashboard.html', 
                            atenciones=atenciones, 
                            total_hoy=total_hoy, 
-                           total_mes=total_mes, 
+                           total_mes=total_mes,
+                           tiempo_promedio=tiempo_promedio, 
                            resultados_dict=resultados_dict, 
                            top_areas_data=top_areas_data,
                            search=search)
