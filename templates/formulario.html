@@ -358,13 +358,6 @@
                     <div class="island-number">VII</div>
                     <h5 class="island-title">CONFORMIDAD DEL USUARIO</h5>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label text-danger"><i class="fas fa-file-signature me-1"></i>Firma Física (Auditoría):</label>
-                    <select class="form-select soft-input border-danger" name="estado_firma" style="color: #dc3545; font-weight: bold;">
-                        <option value="Pendiente" {% if atencion and atencion.estado_firma == 'Pendiente' %}selected{% endif %}>Pendiente (Falta Imprimir)</option>
-                        <option value="Firmado y Archivado" {% if atencion and atencion.estado_firma == 'Firmado y Archivado' %}selected{% endif %}>Firmado y Archivado</option>
-                    </select>
-                </div>
                 <div class="mb-3 mt-4">
                     <label class="form-label">Nombre Usuario:</label>
                     <input type="text" class="form-control soft-input text-uppercase" name="conf_nombre" value="{{ atencion.conf_nombre if atencion else '' }}">

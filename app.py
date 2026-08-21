@@ -173,15 +173,13 @@ def nuevo():
         area_usuaria = sub_area if sub_area else direccion
         direccion_oficina = direccion
             
-        estado_firma = request.form.get('estado_firma', 'Pendiente')
-        
         file = request.files.get('evidencia_parcial')
-        evidencia_filename = atencion.get('evidencia_parcial')
+        evidencia_filename = None
         
         if file and file.filename != '':
             if allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                filename = f"{atencion['id']}_{filename}"
+                filename = f"{id_atencion}_{filename}"
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 evidencia_filename = filename
 
@@ -189,7 +187,6 @@ def nuevo():
         doc = {
             "id": id_atencion, # Ej: SOP-2026-0001
             "id_secuencial": nuevo_num, # Para ordenar correctamente
-            "estado_firma": estado_firma,
             "fecha_registro": request.form.get('fecha_registro'),
             "hora_registro": request.form.get('hora_registro'),
             "area_usuaria": area_usuaria,
@@ -322,21 +319,18 @@ def editar(id_str):
         area_usuaria = sub_area if sub_area else direccion
         direccion_oficina = direccion
             
-        estado_firma = request.form.get('estado_firma', 'Pendiente')
-        
         file = request.files.get('evidencia_parcial')
-        evidencia_filename = atencion.get('evidencia_parcial')
+        evidencia_filename = None
         
         if file and file.filename != '':
             if allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                filename = f"{atencion['id']}_{filename}"
+                filename = f"{id_atencion}_{filename}"
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 evidencia_filename = filename
 
         
         update_data = {
-            "estado_firma": estado_firma,
             "fecha_registro": request.form.get('fecha_registro'),
             "hora_registro": request.form.get('hora_registro'),
             "area_usuaria": area_usuaria,
@@ -410,7 +404,6 @@ def exportar_excel():
     
     nombres_columnas = {
         'id': 'Código',
-        'estado_firma': 'Estado Firma Física',
         'fecha_registro': 'Fecha Registro',
         'hora_registro': 'Hora',
         'area_usuaria': 'Área Usuaria',
