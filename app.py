@@ -189,7 +189,9 @@ def nuevo():
             "conf_fecha": request.form.get('conf_fecha'),
             "resp_nombre": request.form.get('resp_nombre'),
             "resp_cargo": request.form.get('resp_cargo'),
-            "resp_fecha": request.form.get('resp_fecha')
+            "resp_fecha": request.form.get('resp_fecha'),
+            "resp_hora": request.form.get('resp_hora'),
+            "ip_maquina": request.form.get('ip_maquina')
         }
         db.atenciones.insert_one(doc)
         flash('Atención registrada exitosamente', 'success')
@@ -322,7 +324,9 @@ def editar(id_str):
             "conf_fecha": request.form.get('conf_fecha'),
             "resp_nombre": request.form.get('resp_nombre'),
             "resp_cargo": request.form.get('resp_cargo'),
-            "resp_fecha": request.form.get('resp_fecha')
+            "resp_fecha": request.form.get('resp_fecha'),
+            "resp_hora": request.form.get('resp_hora'),
+            "ip_maquina": request.form.get('ip_maquina')
         }
         db.atenciones.update_one({"_id": atencion["_id"]}, {"$set": update_data})
         flash('Registro actualizado correctamente.', 'success')
@@ -357,10 +361,10 @@ def exportar_excel():
         atenciones = list(db.atenciones.find().sort("id_secuencial", -1))
         
     for a in atenciones:
-        if '_id' in a:
-            del a['_id']
-        if 'id_secuencial' in a:
-            del a['id_secuencial']
+        if '_id' in a: del a['_id']
+        if 'id_secuencial' in a: del a['id_secuencial']
+        if 'ip_cliente' in a: del a['ip_cliente']
+        if 'user_agent' in a: del a['user_agent']
             
     if not atenciones:
         flash('No hay registros en el rango seleccionado.', 'warning')
@@ -393,7 +397,9 @@ def exportar_excel():
         'conf_fecha': 'Fecha Conformidad',
         'resp_nombre': 'Técnico Responsable',
         'resp_cargo': 'Cargo Técnico',
-        'resp_fecha': 'Fecha Cierre'
+        'resp_fecha': 'Fecha Cierre',
+        'resp_hora': 'Hora Cierre',
+        'ip_maquina': 'IP Máquina'
     }
     nombres_columnas_existentes = {k: v for k, v in nombres_columnas.items() if k in df.columns}
     df.rename(columns=nombres_columnas_existentes, inplace=True)

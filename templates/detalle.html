@@ -207,18 +207,7 @@
     </table>
     
     {% if atencion.ip_cliente %}
-    <div class="mt-2" style="border-top: 1px dashed #ccc; padding-top: 8px; display: flex; align-items: flex-start; gap: 10px; font-family: 'Courier New', Courier, monospace; font-size: 8px; color: #555;">
-        <div style="font-size: 20px; color: #888; padding-top: 2px;">
-            <i class="fas fa-fingerprint"></i>
-        </div>
-        <div style="line-height: 1.3;">
-            <strong style="color: #000; font-size: 9px;">HUELLA DIGITAL DE SISTEMA / CERTIFICACIÓN DE REGISTRO ELECTRÓNICO</strong><br>
-            <span><strong>IP Origen:</strong> {{ atencion.ip_cliente }}</span> &nbsp;|&nbsp; 
-            <span><strong>Timestamp:</strong> {{ atencion.fecha_registro }} {{ atencion.hora_registro }}</span> &nbsp;|&nbsp; 
-            <span><strong>ID Transacción:</strong> {{ atencion.id }}</span><br>
-            <span style="color: #777;"><strong>User-Agent:</strong> {{ atencion.user_agent }}</span>
-        </div>
-    </div>
+    
     {% endif %}
         </div>
     </div>

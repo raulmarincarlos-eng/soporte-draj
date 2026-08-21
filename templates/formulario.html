@@ -344,6 +344,10 @@
                     <div class="island-number">VII</div>
                     <h5 class="island-title">CONFORMIDAD DEL USUARIO</h5>
                 </div>
+                <div class="mb-3 mt-3">
+                    <label class="form-label">Dirección IP (del Equipo Atendido):</label>
+                    <input type="text" class="form-control soft-input font-monospace border-primary" name="ip_maquina" placeholder="192.168.x.x" value="{{ atencion.ip_maquina if atencion else '' }}">
+                </div>
                 <div class="mb-3">
                     <label class="form-label text-danger"><i class="fas fa-file-signature me-1"></i>Firma Física (Auditoría):</label>
                     <select class="form-select soft-input border-danger" name="estado_firma" style="color: #dc3545; font-weight: bold;">
@@ -379,13 +383,17 @@
                     <input type="text" class="form-control soft-input text-uppercase bg-white" name="resp_nombre" value="{{ atencion.resp_nombre if atencion and atencion.resp_nombre else session.get('nombre', '') }}">
                 </div>
                 <div class="row g-3">
-                    <div class="col-7">
+                    <div class="col-12 col-md-5">
                         <label class="form-label">Cargo:</label>
                         <input type="text" class="form-control soft-input bg-white" name="resp_cargo" value="{{ atencion.resp_cargo if atencion else 'Responsable de Informática' }}">
                     </div>
-                    <div class="col-5">
-                        <label class="form-label">Fecha:</label>
+                    <div class="col-6 col-md-4">
+                        <label class="form-label">Fecha Cierre:</label>
                         <input type="date" class="form-control soft-input bg-white" name="resp_fecha" id="resp_fecha" value="{{ atencion.resp_fecha if atencion else '' }}">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label">Hora Cierre:</label>
+                        <input type="time" class="form-control soft-input bg-white" name="resp_hora" id="resp_hora" value="{{ atencion.resp_hora if atencion else '' }}">
                     </div>
                 </div>
             </div>
