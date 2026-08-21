@@ -220,8 +220,6 @@ def nuevo():
         
     return render_template('formulario.html', atencion=None, new_id=nuevo_codigo)
 
-import socket
-
 @app.route('/solicitar', methods=('GET', 'POST'))
 def solicitar():
     if request.method == 'POST':
@@ -239,7 +237,6 @@ def solicitar():
         doc = {
             "id": nuevo_codigo,
             "id_secuencial": nuevo_num,
-            "estado_firma": "Pendiente",
             "fecha_registro": datetime.now().strftime('%Y-%m-%d'),
             "hora_registro": datetime.now().strftime('%H:%M:%S'),
             "area_usuaria": area_usuaria,
