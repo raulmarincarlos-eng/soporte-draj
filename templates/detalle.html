@@ -152,6 +152,9 @@
         <tr>
             <td colspan="6" class="field-value p-2" style="height: 35px; border-top: none;">
                 <span class="fw-bold">Observaciones:</span> <span class="text-primary-color">{{ atencion.observaciones }}</span>
+                {% if atencion.evidencia_parcial %}
+                <br><span class="fw-bold text-warning"><i class="fas fa-paperclip me-1"></i>Evidencia Adjunta:</span> <span class="text-muted" style="font-size: 10px;">{{ atencion.evidencia_parcial }} (Archivo digital guardado en sistema)</span>
+                {% endif %}
             </td>
         </tr>
     </table>

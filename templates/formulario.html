@@ -121,7 +121,7 @@
     .form-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #7f8c8d; font-weight: 700; }
 </style>
 
-<form method="POST" action="{% if atencion %}{{ url_for('editar', id_str=atencion.id) }}{% else %}{{ url_for('nuevo') }}{% endif %}">
+<form method="POST" action="{% if atencion %}{{ url_for('editar', id_str=atencion.id) }}{% else %}{{ url_for('nuevo') }}{% endif %}" enctype="multipart/form-data">
 
     <!-- I. DATOS GENERALES -->
     <div class="modern-island fade-in">
@@ -321,6 +321,16 @@
                 <label class="pill-label pill-label-danger text-center fs-5" for="res_noatendido"><i class="fas fa-times-circle me-2"></i>No Atendido</label>
             </div>
         </div>
+        
+        <div id="upload-evidencia" class="mb-3 d-none p-3 rounded" style="background: #fff3cd; border: 1px dashed #ffc107;">
+            <label class="form-label text-warning" style="font-weight: 600;"><i class="fas fa-file-upload me-2"></i>Subir Evidencia (Solo si la atención es Parcial)</label>
+            <input type="file" class="form-control soft-input" name="evidencia_parcial" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.xls,.xlsx">
+            {% if atencion and atencion.evidencia_parcial %}
+            <div class="mt-2 small text-muted fw-bold">
+                <i class="fas fa-check-circle text-success me-1"></i>Archivo actual adjuntado: <a href="{{ url_for('static', filename='uploads/' + atencion.evidencia_parcial) }}" target="_blank" class="text-primary text-decoration-underline">{{ atencion.evidencia_parcial }}</a>
+            </div>
+            {% endif %}
+        </div>
         <style>
             .btn-check:checked + label[for="res_en_proceso"] {
                 background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important;
@@ -499,13 +509,26 @@
     document.addEventListener("DOMContentLoaded", function() {
         // Añadir el listener a los radios de resultado
         const radioBtns = document.querySelectorAll('input[name="resultado"]');
+        const uploadBox = document.getElementById('upload-evidencia');
+        
+        function toggleUploadBox() {
+            const parcialRadio = document.getElementById('res_parcial');
+            if(parcialRadio && parcialRadio.checked) {
+                uploadBox.classList.remove('d-none');
+            } else {
+                uploadBox.classList.add('d-none');
+            }
+        }
+        
         radioBtns.forEach(btn => {
             btn.addEventListener('change', function() {
+                toggleUploadBox();
                 if(this.value === 'Atendido' || this.value === 'Parcial') {
                     autoFillClosingTime();
                 }
             });
         });
+        toggleUploadBox(); // Ejecutar al cargar la página
         initAreas();
         
         const today = new Date();

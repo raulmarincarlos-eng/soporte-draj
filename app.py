@@ -5,6 +5,7 @@ from database import init_db, get_db_connection
 from datetime import datetime
 import os
 import sys
+from werkzeug.utils import secure_filename
 import pandas as pd
 from io import BytesIO
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
@@ -18,6 +19,17 @@ if getattr(sys, 'frozen', False):
     app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 else:
     app = Flask(__name__)
+
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB max
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 app.secret_key = 'Soporte_DRAJ_Seguridad_2026'
 
@@ -162,6 +174,17 @@ def nuevo():
         direccion_oficina = direccion
             
         estado_firma = request.form.get('estado_firma', 'Pendiente')
+        
+        file = request.files.get('evidencia_parcial')
+        evidencia_filename = atencion.get('evidencia_parcial')
+        
+        if file and file.filename != '':
+            if allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = f"{atencion['id']}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                evidencia_filename = filename
+
             
         doc = {
             "id": id_atencion, # Ej: SOP-2026-0001
@@ -191,7 +214,8 @@ def nuevo():
             "resp_cargo": request.form.get('resp_cargo'),
             "resp_fecha": request.form.get('resp_fecha'),
             "resp_hora": request.form.get('resp_hora'),
-            "ip_maquina": request.form.get('ip_maquina')
+            "ip_maquina": request.form.get('ip_maquina'),
+            "evidencia_parcial": evidencia_filename
         }
         db.atenciones.insert_one(doc)
         flash('Atención registrada exitosamente', 'success')
@@ -300,6 +324,17 @@ def editar(id_str):
             
         estado_firma = request.form.get('estado_firma', 'Pendiente')
         
+        file = request.files.get('evidencia_parcial')
+        evidencia_filename = atencion.get('evidencia_parcial')
+        
+        if file and file.filename != '':
+            if allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = f"{atencion['id']}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                evidencia_filename = filename
+
+        
         update_data = {
             "estado_firma": estado_firma,
             "fecha_registro": request.form.get('fecha_registro'),
@@ -326,7 +361,8 @@ def editar(id_str):
             "resp_cargo": request.form.get('resp_cargo'),
             "resp_fecha": request.form.get('resp_fecha'),
             "resp_hora": request.form.get('resp_hora'),
-            "ip_maquina": request.form.get('ip_maquina')
+            "ip_maquina": request.form.get('ip_maquina'),
+            "evidencia_parcial": evidencia_filename
         }
         db.atenciones.update_one({"_id": atencion["_id"]}, {"$set": update_data})
         flash('Registro actualizado correctamente.', 'success')
