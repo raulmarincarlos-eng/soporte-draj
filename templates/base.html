@@ -188,9 +188,9 @@
                             {% endif %}
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-light text-success ms-lg-2 px-4 rounded-pill fw-bold hover-scale shadow-sm" href="{{ url_for('nuevo') }}" style="padding: 8px 16px !important;">
-                            <i class="fas fa-plus-circle me-1"></i> Nuevo Registro Admin
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn bg-white text-success px-4 rounded-pill fw-bold hover-scale shadow-sm d-flex align-items-center" href="{{ url_for('nuevo') }}" style="padding: 8px 16px !important; border: 1px solid rgba(25,135,84,0.2);">
+                            <i class="fas fa-plus-circle me-2"></i> Nuevo Registro Admin
                         </a>
                     </li>
 
@@ -198,6 +198,11 @@
                         <a class="nav-link nav-link-custom text-warning ms-lg-2" href="{{ url_for('logout') }}" title="Cerrar Sesión">
                             <i class="fas fa-sign-out-alt"></i> Salir
                         </a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <div class="dark-mode-toggle" id="theme-toggle" title="Alternar Modo Oscuro" style="position: static; box-shadow: none; width: 38px; height: 38px; background: rgba(255,255,255,0.2); border: none;">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </div>
                     </li>
                     {% else %}
                     <li class="nav-item">
@@ -304,11 +309,7 @@
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
 
-    {% if session.get('user_id') %}
-    <div class="dark-mode-toggle" id="theme-toggle" title="Alternar Modo Oscuro">
-        <i class="fas fa-moon" id="theme-icon"></i>
-    </div>
-    {% endif %}
+
 
     <script>
         // Lógica de Modo Oscuro Global

@@ -125,14 +125,18 @@
         </div>
 
         
-        <!-- Robot Widget -->
-        <div class="d-flex justify-content-end mb-3">
-            <div class="d-inline-flex align-items-center bg-white shadow-sm px-3 py-2 rounded-pill border" style="border-color: rgba(0,0,0,0.05) !important;">
-                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
-                    <i class="fas fa-robot text-primary fa-sm heartbeat-robot"></i>
+        <!-- Robot Widget Premium -->
+        <div class="d-flex justify-content-end mb-4">
+            <div class="d-inline-flex align-items-center bg-white shadow rounded-pill pe-4 ps-1 py-1 position-relative hover-scale" style="border: 1px solid rgba(13, 110, 253, 0.15); cursor: default; overflow: hidden;">
+                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(90deg, rgba(13,110,253,0.05) 0%, transparent 100%); z-index: 0;"></div>
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3 position-relative z-1 shadow-sm" style="width: 35px; height: 35px;">
+                    <i class="fas fa-robot heartbeat-robot"></i>
                 </div>
-                <span class="text-muted fw-bold" style="font-size: 0.75rem;">¡Más actualizaciones próximamente! v1.0.3.05</span>
-                <style>@keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } } .heartbeat-robot { animation: heartbeat 1.5s infinite; }</style>
+                <div class="d-flex flex-column justify-content-center position-relative z-1">
+                    <span class="text-dark fw-bolder" style="font-size: 0.8rem; letter-spacing: 0.2px;">¡Más actualizaciones próximamente!</span>
+                    <span class="text-primary fw-bold" style="font-size: 0.65rem; letter-spacing: 1px;">VERSIÓN 1.0.1</span>
+                </div>
+                <style>@keyframes heartbeat { 0% { transform: scale(1); } 25% { transform: scale(1.1); rotate: -5deg; } 50% { transform: scale(1.1); rotate: 5deg; } 100% { transform: scale(1); } } .heartbeat-robot { animation: heartbeat 2s infinite ease-in-out; }</style>
             </div>
         </div>
 
