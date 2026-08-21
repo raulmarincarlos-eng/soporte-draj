@@ -164,6 +164,11 @@
                                 <a href="{{ url_for('detalle', id_str=item.id) }}" class="btn btn-sm btn-primary hover-scale" title="Ver/Imprimir PDF">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
+                                {% if item.evidencia_parcial %}
+                                <a href="{{ url_for('static', filename='uploads/' + item.evidencia_parcial) }}" target="_blank" class="btn btn-sm btn-warning hover-scale text-dark fw-bold" title="Ver Evidencia Adjunta">
+                                    <i class="fas fa-paperclip"></i>
+                                </a>
+                                {% endif %}
                                 <form action="{{ url_for('eliminar', id_str=item.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar la atención #{{ item.id }}? Esta acción no se puede deshacer.');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger hover-scale" title="Eliminar">
                                         <i class="fas fa-trash-alt"></i>
