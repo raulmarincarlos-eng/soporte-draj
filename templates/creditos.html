@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carlos Marín | Desarrollador Web</title>
+    <!-- Google Fonts: Playfair Display (Serif) & Inter (Sans-Serif) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f1011;
+            --text-gold: #c6a87c;
+            --text-light: #f5f5f5;
+            --text-gray: #a0a0a0;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-sans);
+            overflow: hidden; /* Prevent scrolling for the hero effect */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Navbar --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 60px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-gold);
+            letter-spacing: -1px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-gold);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--text-gold);
+        }
+
+        /* --- Main Layout --- */
+        .hero-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10% 0 8%;
+            position: relative;
+            height: 100vh;
+        }
+
+        /* Ambient Glow behind the image */
+        .glow-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-30%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(198,168,124,0.15) 0%, rgba(15,16,17,0) 70%);
+            z-index: 0;
+        }
+
+        /* --- Left Content (Text) --- */
+        .content-left {
+            max-width: 500px;
+            z-index: 2;
+            animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .greeting {
+            color: var(--text-gold);
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .name-title {
+            font-family: var(--font-serif);
+            font-size: 5.5rem;
+            line-height: 1.1;
+            font-weight: 400;
+            margin-bottom: 25px;
+            color: var(--text-light);
+        }
+
+        .roles {
+            color: var(--text-gold);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .description {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            font-weight: 300;
+            max-width: 380px;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 30px;
+            border: 1px solid rgba(198, 168, 124, 0.5);
+            background: transparent;
+            color: var(--text-gray);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+        
+        .btn-outline i {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-gold);
+            color: var(--text-gold);
+        }
+        
+        .btn-outline:hover i {
+            transform: translateX(5px);
+        }
+
+        /* --- Right Content (Image) --- */
+        .content-right {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            height: 95vh;
+            width: 55%;
+            z-index: 1;
+            animation: fadeIn 2s ease forwards;
+            opacity: 0;
+        }
+        
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            mask-image: linear-gradient(to right, transparent, black 15%);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 15%);
+        }
+
+        /* --- Right Sidebar (Icons) --- */
+        .social-sidebar {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            z-index: 10;
+        }
+
+        .social-sidebar a {
+            color: var(--text-gray);
+            font-size: 1.2rem;
+            text-decoration: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .social-sidebar a:hover {
+            color: var(--text-gold);
+            border-color: var(--text-gold);
+            transform: scale(1.1);
+        }
+
+        /* Sidebar line */
+        .social-sidebar::after {
+            content: '';
+            width: 1px;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(198,168,124,0.5), transparent);
+            margin: 10px auto 0;
+        }
+
+        /* Floating Back button */
+        .back-btn {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .back-btn i { margin-right: 10px; }
+        .back-btn:hover { color: var(--text-light); }
+
+        /* Animations */
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .name-title { font-size: 4rem; }
+            .content-right { opacity: 0.3 !important; width: 100%; mask-image: none; -webkit-mask-image: none; }
+            .content-left { z-index: 5; padding: 20px; }
+            nav { padding: 20px; }
+            .nav-links { display: none; }
+            .social-sidebar { right: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-bg"></div>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}" class="logo">CR</a>
+        <div class="nav-links">
+            <a href="#" class="active">INICIO</a>
+            <a href="#">SOBRE MI</a>
+            <a href="#">PROYECTOS</a>
+            <a href="#">CONTACTO</a>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="content-left">
+            <p class="greeting">HOLA, SOY</p>
+            <h1 class="name-title">CARLOS<br>MARÍN</h1>
+            <p class="roles">DESARROLLADOR WEB<br>Y CREADOR DIGITAL</p>
+            <p class="description">
+                Creo experiencias digitales elegantes, funcionales y con propósito.
+            </p>
+            <a href="#" class="btn-outline">VER PROYECTOS <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="content-right">
+            <!-- Using the user uploaded image -->
+            <img src="{{ url_for('static', filename='img/carlos_profile.png') }}" alt="Carlos Marin" class="profile-img">
+        </div>
+    </div>
+
+    <div class="social-sidebar">
+        <a href="#" title="Code"><i class="fas fa-code"></i></a>
+        <a href="#" title="Website"><i class="fas fa-globe"></i></a>
+        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+        <a href="#" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+
+    <a href="{{ url_for('dashboard') }}" class="back-btn">
+        <i class="fas fa-chevron-left"></i> Volver al Sistema
+    </a>
+
+</body>
+</html>

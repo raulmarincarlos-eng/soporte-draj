@@ -576,5 +576,11 @@ def voucher_pdf(id_str):
         flash('Error al generar el PDF del Voucher', 'danger')
         return redirect(url_for('consultar', ticket_id=id_str))
 
+
+@app.route('/creditos')
+def creditos():
+    return render_template('creditos.html')
+
 if __name__ == '__main__':
+
     app.run(host='0.0.0.0', port=5000, debug=True)

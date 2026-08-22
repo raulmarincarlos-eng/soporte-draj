@@ -557,19 +557,8 @@
             
             if(btnCredits && creditsModal && closeBtn && backdrop) {
                 btnCredits.addEventListener('click', () => {
-                    creditsModal.classList.remove('d-none');
-                    // Force reflow
-                    void creditsModal.offsetWidth;
-                    creditsModal.classList.add('show');
+                    window.location.href = '/creditos';
                 });
-                
-                const closeModal = () => {
-                    creditsModal.classList.remove('show');
-                    setTimeout(() => { creditsModal.classList.add('d-none'); }, 800); // Matches CSS transition duration
-                };
-                
-                closeBtn.addEventListener('click', closeModal);
-                backdrop.addEventListener('click', closeModal);
             }
         });
     </script>
