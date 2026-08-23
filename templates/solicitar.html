@@ -27,8 +27,8 @@
     
     /* AVATAR 3D DEL ROBOT */
     .robot-avatar {
-        width: 100px;
-        height: 100px;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
         background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(240,248,245,1) 100%);
         box-shadow: 0 15px 35px rgba(25, 135, 84, 0.4), 0 0 20px rgba(25, 135, 84, 0.2);
@@ -523,8 +523,9 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
 
 <!-- WIDGET DEL ROBOT FIJO (Interactivo 2.0) -->
 <div id="robot-widget">
-    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ()">
-    <div class="speech-bubble" id="robot-bubble">
+    <div id="robot-hint" style="background:#198754; color:white; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; margin-bottom:5px; animation: popIn 1s forwards; animation-delay: 2s; opacity:0; transform:scale(0.5); transform-origin:bottom center;">¡Hola! Tócame</div>
+    <img src="{{ url_for('static', filename='img/robot.jpg') }}" alt="Robot Soporte" class="robot-avatar" id="robot-img" style="cursor: pointer;" onclick="toggleFAQ(); document.getElementById('robot-hint').style.display='none';">
+    <div class="speech-bubble collapsed" id="robot-bubble">
         <div class="d-flex justify-content-between align-items-center mb-1">
             <h6 class="fw-bold text-success mb-0 d-flex align-items-center">
                 <i class="fas fa-robot me-2"></i>Robot Carlos 
