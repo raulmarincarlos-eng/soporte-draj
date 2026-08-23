@@ -10,8 +10,8 @@
     /* WIDGET DEL ROBOT FIJO */
     #robot-widget {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 15px;
+        right: 15px; /* Más pegado al borde derecho */
         left: auto;
         z-index: 9999;
         display: flex;
@@ -56,7 +56,7 @@
         box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         max-width: 260px;
         margin-bottom: 15px;
-        margin-right: 5px;
+        margin-right: 10px; /* Alinea la colita más al centro del avatar */
         animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         opacity: 0;
         transform: scale(0.5);
@@ -341,7 +341,10 @@
             <div class="row g-4">
                 <div class="col-md-6">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="nombre_solicitante" name="nombre_solicitante" required placeholder="Ej: Juan Pérez">
+                        <input type="text" class="form-control" id="nombre_solicitante" name="nombre_solicitante" required placeholder="Ej: Juan Pérez" value="{{ session.get('nombre', '') }}" {% if session.get('nombre') %}readonly style="background-color: #f8f9fa; color: #6c757d;"{% endif %}>
+                        {% if session.get('nombre') %}
+                        <small class="text-success mt-1 d-block"><i class="fas fa-check-circle me-1"></i>Detectado automáticamente por tu sesión</small>
+                        {% endif %}
                         <label for="nombre_solicitante">Nombre Solicitante *</label>
                     </div>
                 </div>

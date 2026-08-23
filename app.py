@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, session, jsonify
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from database import init_db, get_db_connection
 from datetime import datetime
@@ -60,7 +60,12 @@ def login():
             session['user_id'] = str(user['_id'])
             session['username'] = user['username']
             session['nombre'] = user['nombre']
-            return redirect(url_for('dashboard'))
+            session['role'] = user.get('role', 'admin') # Default to admin for backwards compatibility
+            
+            if session['role'] == 'user':
+                return redirect(url_for('mis_tickets'))
+            else:
+                return redirect(url_for('dashboard'))
         else:
             flash('Usuario o contraseña incorrectos.', 'danger')
             
@@ -70,6 +75,42 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/registro', methods=['POST'])
+def registro():
+    db = get_db_connection()
+    dni = request.form.get('dni')
+    password = request.form.get('password')
+    nombre = request.form.get('nombre')
+    
+    if db.usuarios.find_one({"username": dni}):
+        flash('Este DNI ya está registrado.', 'danger')
+        return redirect(url_for('login'))
+        
+    db.usuarios.insert_one({
+        "username": dni,
+        "password": generate_password_hash(password),
+        "nombre": nombre.upper(),
+        "role": "user"
+    })
+    flash('Cuenta creada con éxito. Ahora puedes iniciar sesión.', 'success')
+    return redirect(url_for('login'))
+
+@app.route('/mis_tickets')
+@login_required
+def mis_tickets():
+    if session.get('role') != 'user':
+        return redirect(url_for('dashboard'))
+        
+    db = get_db_connection()
+    atenciones = list(db.atenciones.find({
+        "$or": [
+            {"usuario_id": session['user_id']},
+            {"conf_nombre": session['nombre']}
+        ]
+    }).sort("id_secuencial", -1))
+    
+    return render_template('mis_tickets.html', atenciones=atenciones)
 
 @app.context_processor
 def inject_pendientes():
@@ -85,6 +126,8 @@ def inject_pendientes():
 @app.route('/')
 def index():
     if 'user_id' in session:
+        if session.get('role') == 'user':
+            return redirect(url_for('mis_tickets'))
         return redirect(url_for('dashboard'))
     return redirect(url_for('solicitar'))
 
@@ -290,6 +333,13 @@ def solicitar():
             "conf_nombre": request.form.get('nombre_solicitante', '').upper(),
             "conf_cargo": "", "conf_fecha": "", "resp_nombre": "", "resp_cargo": "", "resp_fecha": ""
         }
+        
+        if 'user_id' in session:
+            doc['usuario_id'] = session['user_id']
+            # If user is logged in, use their real name if form was skipped
+            if not doc['conf_nombre']:
+                doc['conf_nombre'] = session.get('nombre', '').upper()
+                
         db.atenciones.insert_one(doc)
         flash(f'Solicitud enviada. Tu N° de Ticket es: {nuevo_codigo}', 'success')
         return redirect(url_for('consultar', ticket_id=nuevo_codigo))

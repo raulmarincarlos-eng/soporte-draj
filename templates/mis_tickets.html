@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .portal-header {
+        background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 10px 30px rgba(25, 135, 84, 0.2);
+    }
+    .ticket-card {
+        background: white;
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    .ticket-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    .ticket-status {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .status-pendiente { background-color: #fff3cd; color: #856404; }
+    .status-proceso { background-color: #cce5ff; color: #004085; }
+    .status-atendido { background-color: #d4edda; color: #155724; }
+    
+    .ticket-icon {
+        width: 50px;
+        height: 50px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #198754;
+    }
+    
+    .btn-nueva {
+        background: white;
+        color: #198754;
+        font-weight: 800;
+        padding: 12px 30px;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .btn-nueva:hover {
+        transform: scale(1.05);
+        background: #f8f9fa;
+    }
+    
+    .empty-state {
+        padding: 50px 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+</style>
+
+<!-- HEADER PORTAL -->
+<div class="portal-header text-center">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-3"><i class="fas fa-ticket-alt me-3"></i>Portal de Solicitudes</h1>
+        <p class="lead mb-4">Bienvenido, <strong>{{ session.get('nombre', 'Usuario') }}</strong>. Aquí puedes dar seguimiento a todos tus requerimientos de soporte técnico.</p>
+        <a href="{{ url_for('solicitar') }}" class="btn btn-nueva"><i class="fas fa-plus-circle me-2"></i>Nueva Solicitud</a>
+    </div>
+</div>
+
+<div class="container pb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0"><i class="fas fa-history text-success me-2"></i>Historial de Tickets</h3>
+    </div>
+
+    <div class="row">
+        {% if atenciones %}
+            {% for a in atenciones %}
+                <div class="col-lg-6">
+                    <div class="card ticket-card position-relative">
+                        {% if a.resultado == 'Pendiente' %}
+                            <div class="ticket-status status-pendiente"><i class="fas fa-clock me-1"></i>Pendiente</div>
+                        {% elif a.resultado == 'En Proceso' %}
+                            <div class="ticket-status status-proceso"><i class="fas fa-cog fa-spin me-1"></i>Proceso</div>
+                        {% else %}
+                            <div class="ticket-status status-atendido"><i class="fas fa-check-circle me-1"></i>Atendido</div>
+                        {% endif %}
+                        
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="ticket-icon me-3">
+                                    {% if a.tipo_atencion == 'Software' %}<i class="fas fa-laptop-code"></i>
+                                    {% elif a.tipo_atencion == 'Hardware' %}<i class="fas fa-hdd"></i>
+                                    {% elif a.tipo_atencion == 'Redes' %}<i class="fas fa-network-wired"></i>
+                                    {% else %}<i class="fas fa-tools"></i>{% endif %}
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Ticket #{{ a.id }}</h5>
+                                    <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i> {{ a.fecha_registro }} a las {{ a.hora_registro }}</small>
+                                </div>
+                            </div>
+                            
+                            <p class="mb-3"><strong>Problema reportado:</strong><br>{{ a.descripcion | truncate(100) }}</p>
+                            
+                            <hr class="bg-light">
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark border"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ a.area_usuaria }}</span>
+                                <a href="{{ url_for('consultar', ticket_id=a.id) }}" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3">
+                                    Ver Detalles <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-inbox fa-4x mb-3 text-light"></i>
+                    <h4>No tienes tickets registrados</h4>
+                    <p>Cuando solicites soporte técnico, tus tickets aparecerán aquí para que puedas hacerles seguimiento.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
