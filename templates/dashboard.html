@@ -30,9 +30,6 @@
             <a href="#" id="btnExportExcel" class="btn btn-outline-success shadow-sm fw-bold rounded-pill hover-scale">
                 <i class="fas fa-file-excel me-1"></i> Excel
             </a>
-            <button id="btnExportPDF" class="btn btn-outline-danger shadow-sm fw-bold rounded-pill hover-scale">
-                <i class="fas fa-file-pdf me-1"></i> PDF
-            </button>
         </div>
     </div>
     
@@ -219,22 +216,6 @@
         });
     });
     
-    // Generar PDF
-    const btnPdf = document.getElementById('btnExportPDF');
-    if (btnPdf) {
-        btnPdf.addEventListener('click', function() {
-        const element = document.querySelector('.row.mb-4'); // Stats + Charts
-        const opt = {
-            margin:       0.5,
-            filename:     'Reporte_Gerencial_DRAJ.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
-        };
-        html2pdf().set(opt).from(element).save();
-        });
-    }
-
 document.addEventListener("DOMContentLoaded", function() {
         // Export to Excel with dates
     const btnExportExcel = document.getElementById('btnExportExcel');
