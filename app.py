@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from werkzeug.security import check_password_hash
 from functools import wraps
 from database import init_db, get_db_connection
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import os
 import sys
 from werkzeug.utils import secure_filename
@@ -10,7 +10,13 @@ import pandas as pd
 from io import BytesIO
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
-from flaskwebgui import FlaskUI
+
+# Zona horaria de Perú (UTC-5)
+TZ_PERU = timezone(timedelta(hours=-5))
+
+def hora_lima():
+    """Retorna la fecha y hora actual en zona horaria de Lima, Perú (UTC-5)."""
+    return datetime.now(TZ_PERU)
 
 # Soporte para rutas de PyInstaller (sys._MEIPASS)
 if getattr(sys, 'frozen', False):
@@ -109,16 +115,16 @@ def dashboard():
         atenciones = list(db.atenciones.find().sort("id_secuencial", 1))
     
     # Estadísticas
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = hora_lima().strftime('%Y-%m-%d')
     total_hoy = db.atenciones.count_documents({"fecha_registro": today})
     
-    current_month = datetime.now().strftime('%Y-%m')
+    current_month = hora_lima().strftime('%Y-%m')
     total_mes = db.atenciones.count_documents({"fecha_registro": {"$regex": f"^{current_month}"}})
     
     # SLA y KPI: Tiempo de Resolución Promedio
     total_dias = 0
     atendidos_count = 0
-    now = datetime.now()
+    now = hora_lima()
     
     for a in atenciones:
         # Calcular SLA para pendientes
@@ -184,7 +190,7 @@ def generar_nuevo_id(db):
     else:
         nuevo_num = 1
         
-    year = datetime.now().year
+    year = hora_lima().year
     # Formato: SOP-2026-0001
     codigo = f"SOP-{year}-{nuevo_num:04d}"
     return codigo, nuevo_num
@@ -270,8 +276,8 @@ def solicitar():
         doc = {
             "id": nuevo_codigo,
             "id_secuencial": nuevo_num,
-            "fecha_registro": datetime.now().strftime('%Y-%m-%d'),
-            "hora_registro": datetime.now().strftime('%H:%M:%S'),
+            "fecha_registro": hora_lima().strftime('%Y-%m-%d'),
+            "hora_registro": hora_lima().strftime('%H:%M:%S'),
             "area_usuaria": area_usuaria,
             "direccion_oficina": direccion,
             "descripcion": request.form.get('descripcion'),
@@ -512,7 +518,7 @@ def exportar_excel():
     if fecha_inicio and fecha_fin:
         nombre_archivo = f'Reporte_Soporte_{fecha_inicio}_al_{fecha_fin}.xlsx'
     else:
-        nombre_archivo = f'Reporte_Soporte_{datetime.now().strftime("%Y%m%d")}.xlsx'
+        nombre_archivo = f'Reporte_Soporte_{hora_lima().strftime("%Y%m%d")}.xlsx'
         
     return send_file(output, download_name=nombre_archivo, as_attachment=True)
 
