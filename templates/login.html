@@ -35,41 +35,33 @@
             height: 100vh;
         }
 
-        /* LEFT PANE: Realistic Moving Background */
+        /* LEFT PANE: 3D Moving Waves */
         .left-pane {
             flex: 1;
             position: relative;
             overflow: hidden;
             display: none; /* Hide on mobile */
+            box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+            z-index: 10;
         }
         @media (min-width: 992px) {
             .left-pane { display: block; }
         }
 
-        /* The Moving Ocean Image */
-        .moving-bg {
+        #vanta-ocean {
             position: absolute;
-            top: -10%; left: -10%;
-            width: 120%; height: 120%;
-            /* Beautiful Ocean image from Unsplash */
-            background-image: url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            animation: panZoom 30s linear infinite alternate;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 1;
         }
         
-        /* Subtle overlay to make it look cinematic */
+        /* Subtle overlay to blend the ocean with the dark side */
         .left-pane-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(90deg, transparent 50%, var(--bg-deep) 100%);
             z-index: 2;
-        }
-
-        @keyframes panZoom {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(-2%, -2%); }
+            pointer-events: none;
         }
 
         /* RIGHT PANE: The Dark Neon Form */
@@ -84,7 +76,7 @@
             z-index: 5;
         }
         @media (min-width: 992px) {
-            .right-pane { max-width: 600px; box-shadow: -20px 0 50px rgba(0,0,0,0.8); }
+            .right-pane { max-width: 600px; }
         }
 
         /* Cyber Background Elements (Inside Right Pane) */
@@ -312,9 +304,9 @@
 
     <div class="split-container">
         
-        <!-- LEFT PANE: Cinematic Moving Ocean -->
+        <!-- LEFT PANE: Cinematic 3D Waves -->
         <div class="left-pane">
-            <div class="moving-bg"></div>
+            <div id="vanta-ocean"></div>
             <div class="left-pane-overlay"></div>
         </div>
 
@@ -369,5 +361,29 @@
 
     </div>
 
+    <!-- Scripts para el Océano 3D (Vanta.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.innerWidth >= 992) {
+                VANTA.WAVES({
+                    el: "#vanta-ocean",
+                    mouseControls: true,
+                    touchControls: true,
+                    gyroControls: false,
+                    minHeight: 200.00,
+                    minWidth: 200.00,
+                    scale: 1.00,
+                    scaleMobile: 1.00,
+                    color: 0x051e2b,      // Un azul casi negro, muy profundo
+                    shininess: 40.00,
+                    waveHeight: 18.00,
+                    waveSpeed: 0.65,
+                    zoom: 0.95
+                });
+            }
+        });
+    </script>
 </body>
 </html>
