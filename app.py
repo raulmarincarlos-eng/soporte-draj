@@ -196,7 +196,9 @@ def nuevo():
     nuevo_codigo, nuevo_num = generar_nuevo_id(db)
     
     if request.method == 'POST':
-        id_atencion = request.form.get('id_atencion')
+        # Generar ID en el momento de guardar para evitar duplicados por concurrencia
+        nuevo_codigo, nuevo_num = generar_nuevo_id(db)
+        id_atencion = nuevo_codigo
         
         direccion = request.form.get('direccion', '')
         sub_area = request.form.get('sub_area', '')
