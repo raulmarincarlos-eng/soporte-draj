@@ -24,11 +24,15 @@
             <h2 class="text-dark fw-bold mb-0"><i class="fas fa-chart-pie text-primary me-2"></i>Dashboard de Atenciones</h2>
             <p class="text-muted mb-0">Historial y estadísticas de soporte informático</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('exportar_excel') }}" class="btn btn-outline-success shadow-sm fw-bold rounded-pill hover-scale">
+        <div class="d-flex gap-2 align-items-center">
+            <input type="date" id="dateStart" class="form-control form-control-sm rounded-pill shadow-sm" title="Fecha Inicio" style="max-width: 130px;">
+            <input type="date" id="dateEnd" class="form-control form-control-sm rounded-pill shadow-sm" title="Fecha Fin" style="max-width: 130px;">
+            <a href="#" id="btnExportExcel" class="btn btn-outline-success shadow-sm fw-bold rounded-pill hover-scale">
                 <i class="fas fa-file-excel me-1"></i> Excel
             </a>
-
+            <button id="btnExportPDF" class="btn btn-outline-danger shadow-sm fw-bold rounded-pill hover-scale">
+                <i class="fas fa-file-pdf me-1"></i> PDF
+            </button>
         </div>
     </div>
     
@@ -241,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const dateEnd = document.getElementById('dateEnd').value;
             let url = "{{ url_for('exportar_excel') }}";
             if(dateStart || dateEnd) {
-                url += `?inicio=${dateStart}&fin=${dateEnd}`;
+                url += `?fecha_inicio=${dateStart}&fecha_fin=${dateEnd}`;
             }
             window.location.href = url;
         });

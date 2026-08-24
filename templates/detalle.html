@@ -288,12 +288,13 @@ function imprimirMitad() {
     const doc = document.getElementById('documento_pdf');
     doc.classList.add('half-page-mode');
 
-    window.print();
-    
-    // Remover la clase después de que se abra el diálogo de impresión
-    setTimeout(() => {
+    // Usar evento nativo en lugar de setTimeout
+    window.onafterprint = function() {
         doc.classList.remove('half-page-mode');
-    }, 2000);
+        window.onafterprint = null;
+    };
+
+    window.print();
 }
 
 function downloadPDF() {
