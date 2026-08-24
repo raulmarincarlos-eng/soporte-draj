@@ -162,6 +162,23 @@
             filter: drop-shadow(0 0 12px rgba(25,135,84,0.6));
         }
         
+        
+        /* Premium Navbar Glassmorphism */
+        .navbar-floating-wrapper { padding: 15px 20px; }
+        .navbar-glass {
+            background: linear-gradient(135deg, rgba(25, 135, 84, 0.9) 0%, rgba(20, 108, 67, 0.95) 100%) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        body.dark-mode .navbar-glass {
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%) !important;
+            border: 1px solid rgba(25, 135, 84, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+    
         /* Micro-interacciones Globales */
         .btn { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
         .glass-card { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s; }
