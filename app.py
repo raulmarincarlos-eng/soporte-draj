@@ -348,12 +348,12 @@ def editar(id_str):
         direccion_oficina = direccion
             
         file = request.files.get('evidencia_parcial')
-        evidencia_filename = None
+        evidencia_filename = atencion.get('evidencia_parcial')
         
         if file and file.filename != '':
             if allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                filename = f"{id_atencion}_{filename}"
+                filename = f"{atencion['id']}_{filename}"
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 evidencia_filename = filename
 
