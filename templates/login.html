@@ -19,20 +19,75 @@
             --input-bg: rgba(3, 7, 11, 0.7);
         }
 
-        body {
-            font-family: 'Outfit', sans-serif;
+        body, html {
             margin: 0;
             padding: 0;
             height: 100vh;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-deep);
+            overflow: hidden;
+        }
+
+        /* --- SPLIT LAYOUT --- */
+        .split-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* LEFT PANE: Realistic Moving Background */
+        .left-pane {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: none; /* Hide on mobile */
+        }
+        @media (min-width: 992px) {
+            .left-pane { display: block; }
+        }
+
+        /* The Moving Ocean Image */
+        .moving-bg {
+            position: absolute;
+            top: -10%; left: -10%;
+            width: 120%; height: 120%;
+            /* Beautiful Ocean image from Unsplash */
+            background-image: url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            animation: panZoom 30s linear infinite alternate;
+            z-index: 1;
+        }
+        
+        /* Subtle overlay to make it look cinematic */
+        .left-pane-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent 50%, var(--bg-deep) 100%);
+            z-index: 2;
+        }
+
+        @keyframes panZoom {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(-2%, -2%); }
+        }
+
+        /* RIGHT PANE: The Dark Neon Form */
+        .right-pane {
+            flex: 1;
+            max-width: 100%;
+            background-color: var(--bg-deep);
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-deep);
-            overflow: hidden;
             position: relative;
+            z-index: 5;
+        }
+        @media (min-width: 992px) {
+            .right-pane { max-width: 600px; box-shadow: -20px 0 50px rgba(0,0,0,0.8); }
         }
 
-        /* Hexagonal Cyber Grid Background */
+        /* Cyber Background Elements (Inside Right Pane) */
         .cyber-grid {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -43,10 +98,8 @@
             background-position: center center;
             z-index: 1;
             perspective: 1000px;
-            transform-origin: center;
             animation: gridMove 20s linear infinite;
         }
-
         @keyframes gridMove {
             0% { transform: translateY(0) scale(1.1); }
             100% { transform: translateY(40px) scale(1.1); }
@@ -61,21 +114,20 @@
             opacity: 0.4;
         }
         .glow-orb-1 {
-            width: 400px; height: 400px;
+            width: 300px; height: 300px;
             background: rgba(0, 230, 118, 0.15);
-            top: -100px; left: -100px;
+            top: -50px; left: -50px;
             animation: floatOrb 8s infinite alternate ease-in-out;
         }
         .glow-orb-2 {
-            width: 300px; height: 300px;
+            width: 250px; height: 250px;
             background: rgba(14, 165, 233, 0.1);
             bottom: -50px; right: -50px;
             animation: floatOrb 10s infinite alternate-reverse ease-in-out;
         }
-
         @keyframes floatOrb {
             0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 50px) scale(1.2); }
+            100% { transform: translate(30px, 30px) scale(1.2); }
         }
 
         /* Glassmorphism Card Ultra Premium */
@@ -88,7 +140,7 @@
             border-bottom: 1px solid rgba(0, 230, 118, 0.1);
             border-radius: 24px;
             padding: 50px 45px;
-            width: 100%;
+            width: 90%;
             max-width: 440px;
             box-shadow: 
                 0 30px 60px rgba(0, 0, 0, 0.8),
@@ -100,7 +152,6 @@
             transform: translateY(40px);
             position: relative;
         }
-
         @keyframes slideUpFade {
             to { opacity: 1; transform: translateY(0); }
         }
@@ -116,18 +167,14 @@
             padding: 12px;
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 
-                0 10px 20px rgba(0,0,0,0.5),
-                0 0 15px var(--neon-green-dim);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px var(--neon-green-dim);
             margin-bottom: 25px;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .login-header img:hover {
             transform: scale(1.15) translateY(-5px) rotate(5deg);
             border-color: rgba(0, 230, 118, 0.6);
-            box-shadow: 
-                0 15px 35px rgba(0,0,0,0.6),
-                0 0 30px rgba(0, 230, 118, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 30px rgba(0, 230, 118, 0.4);
         }
         h2 {
             color: #ffffff;
@@ -164,17 +211,12 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
-        
         .input-group:focus-within {
             background: rgba(10, 20, 30, 0.9);
             border-color: var(--neon-green);
-            box-shadow: 
-                inset 0 2px 4px rgba(0,0,0,0.5),
-                0 0 0 3px rgba(0, 230, 118, 0.15),
-                0 0 15px rgba(0, 230, 118, 0.1);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 0 3px rgba(0, 230, 118, 0.15), 0 0 15px rgba(0, 230, 118, 0.1);
             transform: translateY(-2px);
         }
-        
         .input-group-text {
             background: transparent;
             border: none;
@@ -182,7 +224,6 @@
             padding-left: 22px;
             font-size: 1.1rem;
         }
-        
         .form-control {
             background: transparent;
             border: none;
@@ -228,9 +269,7 @@
         }
         .btn-login:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 
-                0 15px 35px rgba(0, 230, 118, 0.5),
-                0 0 20px rgba(0, 230, 118, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 230, 118, 0.5), 0 0 20px rgba(0, 230, 118, 0.4);
             background: #00fa82;
             color: #000;
         }
@@ -257,7 +296,6 @@
             text-shadow: 0 0 10px var(--neon-green-dim);
         }
         
-        /* Custom Alert */
         .alert-custom {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -272,50 +310,63 @@
 </head>
 <body>
 
-    <!-- Cyber Background Elements -->
-    <div class="cyber-grid"></div>
-    <div class="glow-orb-1"></div>
-    <div class="glow-orb-2"></div>
-
-    <div class="glass-card">
-        <div class="login-header">
-            <img src="{{ url_for('static', filename='img/logo_gore_junin.png') }}" alt="Logo DRAJ">
-            <h2>SISTC-DRAJ</h2>
-            <p class="subtitle">Panel de Control Administrativo</p>
+    <div class="split-container">
+        
+        <!-- LEFT PANE: Cinematic Moving Ocean -->
+        <div class="left-pane">
+            <div class="moving-bg"></div>
+            <div class="left-pane-overlay"></div>
         </div>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-custom shadow-sm mb-4">
-                        <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
+
+        <!-- RIGHT PANE: Cyber Neon Form -->
+        <div class="right-pane">
+            <!-- Cyber Background Elements -->
+            <div class="cyber-grid"></div>
+            <div class="glow-orb-1"></div>
+            <div class="glow-orb-2"></div>
+
+            <div class="glass-card">
+                <div class="login-header">
+                    <img src="{{ url_for('static', filename='img/logo_gore_junin.png') }}" alt="Logo DRAJ">
+                    <h2>SISTC-DRAJ</h2>
+                    <p class="subtitle">Panel de Control Administrativo</p>
+                </div>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-custom shadow-sm mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-4">
+                        <label class="form-label">Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
+                            <input type="text" class="form-control" name="username" required autofocus placeholder="Ingresa tu usuario">
+                        </div>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST" action="{{ url_for('login') }}">
-            <div class="mb-4">
-                <label class="form-label">Usuario</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
-                    <input type="text" class="form-control" name="username" required autofocus placeholder="Ingresa tu usuario">
-                </div>
+                    <div class="mb-5">
+                        <label class="form-label">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" name="password" required placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-login w-100">
+                        Iniciar Sesión <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('solicitar') }}" class="back-link"><i class="fas fa-chevron-left me-2" style="font-size:10px;"></i> Portal de Solicitudes</a>
+                    </div>
+                </form>
             </div>
-            <div class="mb-5">
-                <label class="form-label">Contraseña</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    <input type="password" class="form-control" name="password" required placeholder="••••••••">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-login w-100">
-                Iniciar Sesión <i class="fas fa-arrow-right ms-2"></i>
-            </button>
-            <div class="text-center mt-4">
-                <a href="{{ url_for('solicitar') }}" class="back-link"><i class="fas fa-chevron-left me-2" style="font-size:10px;"></i> Portal de Solicitudes</a>
-            </div>
-        </form>
+        </div>
+
     </div>
 
 </body>
