@@ -11,6 +11,14 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --neon-green: #00e676;
+            --neon-green-dim: rgba(0, 230, 118, 0.2);
+            --bg-deep: #03070b;
+            --card-bg: rgba(9, 15, 22, 0.85);
+            --input-bg: rgba(3, 7, 11, 0.7);
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
             margin: 0;
@@ -19,68 +27,78 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #0b1115; /* Obsidian dark */
+            background-color: var(--bg-deep);
             overflow: hidden;
             position: relative;
         }
 
-        /* Scales Canvas Background */
-        #scalesCanvas {
+        /* Hexagonal Cyber Grid Background */
+        .cyber-grid {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
             z-index: 1;
+            perspective: 1000px;
+            transform-origin: center;
+            animation: gridMove 20s linear infinite;
         }
 
-        /* Glowing overlay to add depth */
-        .overlay-gradient {
+        @keyframes gridMove {
+            0% { transform: translateY(0) scale(1.1); }
+            100% { transform: translateY(40px) scale(1.1); }
+        }
+
+        /* Ambient Glows */
+        .glow-orb-1, .glow-orb-2 {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, transparent 0%, #0b1115 100%);
+            border-radius: 50%;
+            filter: blur(80px);
             z-index: 2;
-            pointer-events: none;
+            opacity: 0.4;
+        }
+        .glow-orb-1 {
+            width: 400px; height: 400px;
+            background: rgba(0, 230, 118, 0.15);
+            top: -100px; left: -100px;
+            animation: floatOrb 8s infinite alternate ease-in-out;
+        }
+        .glow-orb-2 {
+            width: 300px; height: 300px;
+            background: rgba(14, 165, 233, 0.1);
+            bottom: -50px; right: -50px;
+            animation: floatOrb 10s infinite alternate-reverse ease-in-out;
         }
 
-        /* Glassmorphism Card Premium */
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.2); }
+        }
+
+        /* Glassmorphism Card Ultra Premium */
         .glass-card {
-            background: rgba(16, 25, 33, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-top: 1px solid rgba(16, 185, 129, 0.5);
-            border-radius: 20px;
-            padding: 45px 40px;
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(0, 230, 118, 0.3);
+            border-bottom: 1px solid rgba(0, 230, 118, 0.1);
+            border-radius: 24px;
+            padding: 50px 45px;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.1);
+            max-width: 440px;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.8),
+                0 0 40px var(--neon-green-dim),
+                inset 0 0 20px rgba(0, 230, 118, 0.05);
             z-index: 10;
-            animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: slideUpFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
             position: relative;
-        }
-
-        /* Neon pulse behind card */
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, #10b981, transparent, #0ea5e9);
-            z-index: -1;
-            border-radius: 22px;
-            filter: blur(15px);
-            opacity: 0.3;
-            animation: pulseGlow 4s infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% { opacity: 0.2; filter: blur(15px); }
-            100% { opacity: 0.4; filter: blur(20px); }
         }
 
         @keyframes slideUpFade {
@@ -89,128 +107,154 @@
 
         .login-header {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
         }
         .login-header img {
-            width: 90px;
+            width: 85px;
             height: auto;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
             padding: 12px;
-            border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 
+                0 10px 20px rgba(0,0,0,0.5),
+                0 0 15px var(--neon-green-dim);
             margin-bottom: 25px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .login-header img:hover {
-            transform: scale(1.1) translateY(-5px);
-            border-color: rgba(16, 185, 129, 0.5);
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2);
+            transform: scale(1.15) translateY(-5px) rotate(5deg);
+            border-color: rgba(0, 230, 118, 0.6);
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.6),
+                0 0 30px rgba(0, 230, 118, 0.4);
         }
         h2 {
-            color: #f8fafc;
+            color: #ffffff;
             font-weight: 800;
-            letter-spacing: 1.5px;
-            margin-bottom: 5px;
-            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
         p.subtitle {
-            color: #94a3b8;
+            color: #8b9bb4;
             font-size: 13px;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
+            font-weight: 600;
         }
 
-        /* Inputs Premium */
+        /* Inputs Ultra Premium */
+        .form-label {
+            color: #a0aec0;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            margin-left: 5px;
+        }
+        
         .input-group {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
+        
         .input-group:focus-within {
-            background: rgba(15, 23, 42, 0.9);
-            border-color: #10b981;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            background: rgba(10, 20, 30, 0.9);
+            border-color: var(--neon-green);
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.5),
+                0 0 0 3px rgba(0, 230, 118, 0.15),
+                0 0 15px rgba(0, 230, 118, 0.1);
+            transform: translateY(-2px);
         }
+        
         .input-group-text {
             background: transparent;
             border: none;
-            color: #10b981;
-            padding-left: 20px;
+            color: var(--neon-green);
+            padding-left: 22px;
+            font-size: 1.1rem;
         }
+        
         .form-control {
             background: transparent;
             border: none;
-            color: #f8fafc;
-            padding: 16px 15px;
+            color: #ffffff;
+            padding: 18px 15px;
             font-size: 15px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
         }
         .form-control::placeholder {
-            color: #64748b;
+            color: #4a5568;
+            font-weight: 300;
         }
         .form-control:focus {
             background: transparent;
-            color: #f8fafc;
+            color: #ffffff;
             box-shadow: none;
-        }
-        
-        .form-label {
-            color: #cbd5e1;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            margin-left: 5px;
         }
 
         /* Button Next-Level */
         .btn-login {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            border-radius: 14px;
-            padding: 16px;
+            background: var(--neon-green);
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
             font-weight: 800;
             font-size: 15px;
             letter-spacing: 2px;
-            color: white;
-            transition: all 0.3s ease;
+            color: #03070b;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
             text-transform: uppercase;
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 230, 118, 0.3);
+            margin-top: 10px;
         }
-        .btn-login::after {
+        .btn-login::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.5s ease;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: all 0.6s ease;
         }
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
-            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 15px 35px rgba(0, 230, 118, 0.5),
+                0 0 20px rgba(0, 230, 118, 0.4);
+            background: #00fa82;
+            color: #000;
         }
-        .btn-login:hover::after {
-            opacity: 1;
-            transform: scale(1);
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        .btn-login:active {
+            transform: translateY(1px);
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.3);
         }
 
         .back-link {
             color: #64748b;
             text-decoration: none;
             font-weight: 600;
-            transition: color 0.3s;
+            transition: all 0.3s;
             display: inline-block;
-            margin-top: 5px;
+            margin-top: 10px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
         }
         .back-link:hover {
-            color: #f8fafc;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green-dim);
         }
         
         /* Custom Alert */
@@ -218,20 +262,24 @@
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
             color: #fca5a5;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 14px;
-            padding: 12px 15px;
+            padding: 15px;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <canvas id="scalesCanvas"></canvas>
-    <div class="overlay-gradient"></div>
+    <!-- Cyber Background Elements -->
+    <div class="cyber-grid"></div>
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
 
     <div class="glass-card">
         <div class="login-header">
-            <img src="{{ url_for('static', filename='img/logo_gore_junin.png') }}" alt="Logo">
+            <img src="{{ url_for('static', filename='img/logo_gore_junin.png') }}" alt="Logo DRAJ">
             <h2>SISTC-DRAJ</h2>
             <p class="subtitle">Panel de Control Administrativo</p>
         </div>
@@ -254,128 +302,21 @@
                     <input type="text" class="form-control" name="username" required autofocus placeholder="Ingresa tu usuario">
                 </div>
             </div>
-            <div class="mb-4">
+            <div class="mb-5">
                 <label class="form-label">Contraseña</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                     <input type="password" class="form-control" name="password" required placeholder="••••••••">
                 </div>
             </div>
-            <button type="submit" class="btn btn-login w-100 mt-2">
+            <button type="submit" class="btn btn-login w-100">
                 Iniciar Sesión <i class="fas fa-arrow-right ms-2"></i>
             </button>
             <div class="text-center mt-4">
-                <a href="{{ url_for('solicitar') }}" class="back-link small"><i class="fas fa-chevron-left me-1" style="font-size:10px;"></i> Portal de Solicitudes</a>
+                <a href="{{ url_for('solicitar') }}" class="back-link"><i class="fas fa-chevron-left me-2" style="font-size:10px;"></i> Portal de Solicitudes</a>
             </div>
         </form>
     </div>
 
-    <!-- Advanced Geometric Scales Animation -->
-    <script>
-        const canvas = document.getElementById('scalesCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        const hexRadius = 40; 
-        const hexHeight = hexRadius * Math.sqrt(3);
-        const hexWidth = hexRadius * 2;
-        
-        let mouseX = -1000;
-        let mouseY = -1000;
-        
-        // Resize handler
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Mouse tracking
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-        window.addEventListener('mouseout', () => {
-            mouseX = -1000;
-            mouseY = -1000;
-        });
-
-        // Draw a single hexagon
-        function drawHexagon(x, y, distToMouse, time) {
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                const angle = (Math.PI / 180) * (60 * i - 30);
-                const px = x + hexRadius * Math.cos(angle);
-                const py = y + hexRadius * Math.sin(angle);
-                if (i === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
-            ctx.closePath();
-
-            // Base colors (Dark Corporate)
-            let strokeColor = 'rgba(16, 185, 129, 0.05)';
-            let fillColor = 'rgba(11, 17, 21, 0.8)';
-            let lineWidth = 1;
-
-            // Interactive glowing effect based on mouse distance
-            if (distToMouse < 250) {
-                const intensity = 1 - (distToMouse / 250);
-                strokeColor = `rgba(16, 185, 129, ${0.05 + intensity * 0.4})`;
-                fillColor = `rgba(16, 185, 129, ${intensity * 0.08})`;
-                lineWidth = 1 + intensity * 1.5;
-            }
-
-            // Subtle pulsing animation wave
-            const wave = Math.sin((x * y) / 10000 + time) * 0.5 + 0.5;
-            if (distToMouse >= 250) {
-                strokeColor = `rgba(16, 185, 129, ${0.02 + wave * 0.05})`;
-            }
-
-            ctx.fillStyle = fillColor;
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = lineWidth;
-            ctx.fill();
-            ctx.stroke();
-        }
-
-        // Main animation loop
-        function animate(timestamp) {
-            ctx.clearRect(0, 0, width, height);
-            
-            const time = timestamp * 0.001;
-            
-            // Draw grid of overlapping "scales" (hexagons)
-            const cols = Math.ceil(width / (hexWidth * 0.75)) + 4;
-            const rows = Math.ceil(height / hexHeight) + 4;
-            
-            // Continuous travel offset
-            const speed = 40; // Pixels per second
-            const xTravel = (time * speed) % (hexWidth * 0.75 * 2);
-            const yTravel = (time * speed * 0.5) % (hexHeight * 2);
-            
-            for (let c = -2; c < cols; c++) {
-                for (let r = -2; r < rows; r++) {
-                    // Offset odd columns to create interlocking scale pattern
-                    let x = c * hexWidth * 0.75 - xTravel;
-                    let y = r * hexHeight + (c % 2 === 0 ? 0 : hexHeight / 2) - yTravel;
-                    
-                    // Add slight floating movement
-                    const floatY = Math.sin(time + x/200) * 5;
-                    y += floatY;
-
-                    const dx = mouseX - x;
-                    const dy = mouseY - y;
-                    const distToMouse = Math.sqrt(dx * dx + dy * dy);
-                    
-                    drawHexagon(x, y, distToMouse, time);
-                }
-            }
-            
-            requestAnimationFrame(animate);
-        }
-        
-        requestAnimationFrame(animate);
-    </script>
 </body>
 </html>
