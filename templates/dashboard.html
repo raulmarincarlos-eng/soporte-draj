@@ -25,9 +25,7 @@
             <p class="text-muted mb-0">Historial y estadísticas de soporte informático</p>
         </div>
         <div class="d-flex gap-2 align-items-center">
-            <input type="date" id="dateStart" class="form-control form-control-sm rounded-pill shadow-sm" title="Fecha Inicio" style="max-width: 130px;">
-            <input type="date" id="dateEnd" class="form-control form-control-sm rounded-pill shadow-sm" title="Fecha Fin" style="max-width: 130px;">
-            <a href="#" id="btnExportExcel" class="btn btn-outline-success shadow-sm fw-bold rounded-pill hover-scale">
+            <a href="{{ url_for('exportar_excel') }}" class="btn btn-outline-success shadow-sm fw-bold rounded-pill hover-scale">
                 <i class="fas fa-file-excel me-1"></i> Excel
             </a>
         </div>
@@ -217,20 +215,6 @@
     });
     
 document.addEventListener("DOMContentLoaded", function() {
-        // Export to Excel with dates
-    const btnExportExcel = document.getElementById('btnExportExcel');
-    if(btnExportExcel) {
-        btnExportExcel.addEventListener('click', function(e) {
-            e.preventDefault();
-            const dateStart = document.getElementById('dateStart').value;
-            const dateEnd = document.getElementById('dateEnd').value;
-            let url = "{{ url_for('exportar_excel') }}";
-            if(dateStart || dateEnd) {
-                url += `?fecha_inicio=${dateStart}&fecha_fin=${dateEnd}`;
-            }
-            window.location.href = url;
-        });
-    }
     // Buscar en la tabla
     const searchInput = document.getElementById('searchInput');
     const tableRows = document.querySelectorAll('tbody tr');
