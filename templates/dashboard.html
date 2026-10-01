@@ -156,7 +156,7 @@
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <div class="d-flex justify-content-end gap-2">
+                            <div class="d-flex justify-content-end gap-2 flex-wrap">
                                 {% if item.resultado == 'Pendiente' %}
                                 <a href="{{ url_for('editar', id_str=item.id) }}" class="btn btn-sm btn-success fw-bold shadow-sm hover-scale position-relative" title="Atender este ticket ahora">
                                     <i class="fas fa-tools me-1"></i> Atender

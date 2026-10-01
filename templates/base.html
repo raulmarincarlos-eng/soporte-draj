@@ -573,7 +573,13 @@
             
             if(btnCredits && creditsModal && closeBtn && backdrop) {
                 btnCredits.addEventListener('click', () => {
-                    window.location.href = '/creditos';
+                    creditsModal.classList.remove('d-none');
+                });
+                closeBtn.addEventListener('click', () => {
+                    creditsModal.classList.add('d-none');
+                });
+                backdrop.addEventListener('click', () => {
+                    creditsModal.classList.add('d-none');
                 });
             }
         });
