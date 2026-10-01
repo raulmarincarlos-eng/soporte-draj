@@ -33,11 +33,24 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB max
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx'}
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 app.secret_key = 'Soporte_DRAJ_Seguridad_2026'
+
+# Configuración de Seguridad
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["1000 per day", "100 per hour"],
+    storage_uri="memory://"
+)
 
 def login_required(f):
     @wraps(f)
@@ -54,6 +67,7 @@ except Exception as e:
     print(f"Error conectando a MongoDB: {e}")
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -260,6 +274,7 @@ def nuevo():
     return render_template('formulario.html', atencion=None, new_id=nuevo_codigo)
 
 @app.route('/solicitar', methods=('GET', 'POST'))
+@limiter.limit("5 per minute")
 def solicitar():
     if request.method == 'POST':
         db = get_db_connection()

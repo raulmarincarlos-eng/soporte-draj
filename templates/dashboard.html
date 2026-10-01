@@ -86,6 +86,7 @@
 <div class="card shadow-sm border-0 rounded-3 fade-in" style="animation-delay: 0.1s;">
     <div class="card-body">
         <form method="GET" action="{{ url_for('dashboard') }}" class="mb-4">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="input-group input-group-lg">
                 <span class="input-group-text bg-white text-muted border-end-0">
                     <i class="fas fa-search"></i>
@@ -176,6 +177,7 @@
                                 </a>
                                 {% endif %}
                                 <form action="{{ url_for('eliminar', id_str=item.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar la atención #{{ item.id }}? Esta acción no se puede deshacer.');">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <button type="submit" class="btn btn-sm btn-outline-danger hover-scale" title="Eliminar">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>

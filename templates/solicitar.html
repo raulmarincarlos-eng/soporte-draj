@@ -335,6 +335,7 @@
     </style>
 
     <form method="POST" action="{{ url_for('solicitar') }}" id="form-solicitud">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         
         <!-- PASO 1: IDENTIDAD -->
         <div class="wizard-step active" id="step-1">
@@ -873,3 +874,4 @@ document.getElementById('form-solicitud').addEventListener('submit', function() 
     }
 </script>
 {% endblock %}
+

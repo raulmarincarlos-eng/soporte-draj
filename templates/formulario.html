@@ -121,6 +121,7 @@
 </style>
 
 <form method="POST" action="{% if atencion %}{{ url_for('editar', id_str=atencion.id) }}{% else %}{{ url_for('nuevo') }}{% endif %}" enctype="multipart/form-data">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
     <!-- I. DATOS GENERALES -->
     <div class="modern-island fade-in">
@@ -590,3 +591,4 @@
     });
 </script>
 {% endblock %}
+
